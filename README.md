@@ -113,7 +113,7 @@ X-StoreKit-Edge-Secret:  <EDGE_SHARED_SECRET>
 - The API believes the address **only** if the secret matches (constant-time) and the address is exactly one valid IPv4/IPv6
   address. A wrong, missing or malformed secret, or a bad address, is ignored: the API then uses its real connecting address.
   It never reads `X-Forwarded-For` or `X-Real-IP`. Rules and tests: the backend's `docs/DEPLOYMENT.md`, "Client IP and rate limiting".
-- The secret is the same value as the API's `EDGE_SHARED_SECRET` (SSM `/storekit/<stage>/edge-shared-secret`). Generate one
+- The secret is the same value as the API's `EDGE_SHARED_SECRET` (the `EDGE_SHARED_SECRET` secret in the backend's GitHub environment). Generate one
   per environment with `openssl rand -base64 48`.
 - It exists only in server environment variables. Client components cannot import the modules that read it, it is not in
   `next.config.mjs`, and `npm run verify:bundle` scans every browser file after a build (`EDGE_SHARED_SECRET=<sentinel> npm run build && npm run verify:bundle`).
