@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clearIdempotencyKey, emptyAddress, idempotencyKeyFor, loadUpi, orderBody, saveUpi, validateAddress } from '@/lib/checkout.js';
+import { clearAddress, loadAddress, saveAddress, clearIdempotencyKey, emptyAddress, idempotencyKeyFor, loadUpi, orderBody, saveUpi, validateAddress } from '@/lib/checkout.js';
 
 const valid = { fullName: 'Asha Rao', mobile: '98765 43210', houseNo: '12', street: 'MG Road', area: 'Indiranagar', landmark: '', city: 'Bengaluru', district: 'Bengaluru Urban', state: 'Karnataka', pincode: '560038', instructions: '' };
 
@@ -84,6 +84,17 @@ describe('idempotency', () => {
     expect(idempotencyKeyFor({ a: 1 }, storage)).not.toBe(key);
   });
 
+  it('does not need crypto.randomUUID, which plain-http and older browsers lack', () => {
+    const real = globalThis.crypto;
+    Object.defineProperty(globalThis, 'crypto', { value: { getRandomValues: real.getRandomValues.bind(real) }, configurable: true });
+    try {
+      const key = idempotencyKeyFor({ a: 9 }, memory());
+      expect(key).toMatch(/^sk_[0-9a-f]{32}$/);
+    } finally {
+      Object.defineProperty(globalThis, 'crypto', { value: real, configurable: true });
+    }
+  });
+
   it('still works when storage is unavailable', () => {
     expect(idempotencyKeyFor({ a: 1 }, { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } })).toMatch(/^sk_/);
   });
@@ -95,5 +106,50 @@ describe('UPI details for the order page', () => {
     saveUpi('token-1', { upiId: 'a@upi' }, storage);
     expect(loadUpi('token-1', storage)).toEqual({ upiId: 'a@upi' });
     expect(loadUpi('token-2', storage)).toBeNull();
+  });
+});
+
+describe('remembering a returning shopper (no account)', () => {
+  const values = { ...emptyAddress(), fullName: 'Asha Rao', mobile: '9876543210', houseNo: '12', street: 'MG Road', area: 'Indiranagar', city: 'Bengaluru', district: 'Bengaluru Urban', state: 'Karnataka', pincode: '560038', instructions: 'Leave with the guard' };
+
+  it('brings the details back on the next visit', () => {
+    const storage = memory();
+    expect(loadAddress(storage)).toBeNull();
+    saveAddress(values, storage);
+    expect(loadAddress(storage)).toMatchObject({ fullName: 'Asha Rao', mobile: '9876543210', pincode: '560038', city: 'Bengaluru' });
+  });
+
+  it('does not keep a note that belonged to one order', () => {
+    const storage = memory();
+    saveAddress(values, storage);
+    expect(loadAddress(storage).instructions).toBe('');
+  });
+
+  it('forgets everything when asked', () => {
+    const storage = memory();
+    saveAddress(values, storage);
+    clearAddress(storage);
+    expect(loadAddress(storage)).toBeNull();
+  });
+
+  it('treats stored data as untrusted: only plain, bounded text fields come back', () => {
+    const storage = memory();
+    storage.setItem('storekit.address.v1', JSON.stringify({ fullName: 'A'.repeat(500), mobile: 42, city: { x: 1 }, businessId: 'X', __proto__: { y: 1 }, pincode: '560038' }));
+    const loaded = loadAddress(storage);
+    expect(loaded.fullName).toHaveLength(120);
+    expect(loaded.mobile).toBe('');
+    expect(loaded.city).toBe('');
+    expect(loaded).not.toHaveProperty('businessId');
+    storage.setItem('storekit.address.v1', 'not json');
+    expect(loadAddress(storage)).toBeNull();
+    storage.setItem('storekit.address.v1', JSON.stringify({ nothing: 'useful' }));
+    expect(loadAddress(storage)).toBeNull();
+  });
+
+  it('still works when storage is blocked', () => {
+    const blocked = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); }, removeItem() { throw new Error('denied'); } };
+    expect(loadAddress(blocked)).toBeNull();
+    expect(saveAddress(values, blocked)).toBe(false);
+    expect(() => clearAddress(blocked)).not.toThrow();
   });
 });

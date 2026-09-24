@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from './CartProvider.jsx';
 import { readCoupon, useQuote } from './useQuote.js';
-import { emptyAddress, validateAddress, orderBody, idempotencyKeyFor, clearIdempotencyKey, saveUpi, PAYMENT_LABELS } from '@/lib/checkout.js';
+import { emptyAddress, validateAddress, orderBody, idempotencyKeyFor, clearIdempotencyKey, saveUpi, saveAddress, loadAddress, clearAddress, PAYMENT_LABELS } from '@/lib/checkout.js';
 import { postJson } from '@/lib/client-api.js';
 import { toQuoteLines } from '@/lib/cart.js';
 import { money } from '@/lib/money.js';
@@ -40,8 +40,16 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
   const [failure, setFailure] = useState(null);
   const [notice, setNotice] = useState(null);
   const alertRef = useRef(null);
+  const [remember, setRemember] = useState(true);
+  const [restored, setRestored] = useState(false);
 
   useEffect(() => { setCoupon(readCoupon()); }, []);
+
+  // A returning shopper finds their details already filled in (kept on this device only; there is no account).
+  useEffect(() => {
+    const saved = loadAddress();
+    if (saved) { setValues((v) => ({ ...v, ...saved, instructions: v.instructions })); setRestored(true); }
+  }, []);
 
   const { status, quote, refresh } = useQuote({ lines: cart.lines, ready: cart.ready, couponCode: coupon, pincode: values.pincode, paymentMethod: method });
 
@@ -82,6 +90,7 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
     if (result.ok) {
       const order = result.data;
       clearIdempotencyKey();
+      if (remember) saveAddress(values); else clearAddress();
       if (order.upi) saveUpi(order.trackingToken, order.upi);
       cart.clear();
       router.push(`/order/success?t=${encodeURIComponent(order.trackingToken)}`);
@@ -138,6 +147,17 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
             {errors.instructions ? <span className="sk-error">{errors.instructions}</span> : null}
           </div>
         </section>
+
+        <label className="sk-remember">
+          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          <span>Save these details on this device for next time</span>
+        </label>
+        {restored ? (
+          <p className="sk-hint" role="status" style={{ marginTop: 0 }}>
+            Filled in from your last order on this device.{' '}
+            <button type="button" className="sk-link-button" onClick={() => { clearAddress(); setValues(emptyAddress()); setRestored(false); }}>Clear saved details</button>
+          </p>
+        ) : null}
 
         <fieldset className="sk-panel" style={{ margin: 0 }}>
           <legend className="sk-visually-hidden">Payment method</legend>
