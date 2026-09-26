@@ -49,7 +49,7 @@ export default async function ProductPage({ params }) {
 
   return (
     <>
-      <nav className="sk-breadcrumb" aria-label="Breadcrumb"><Link href="/">{store.name}</Link> / <Link href="/products">Products</Link> / {product.name}</nav>
+      <nav className="sk-breadcrumb" aria-label="Breadcrumb"><Link href="/" prefetch={false}>{store.name}</Link> / <Link href="/products" prefetch={false}>Products</Link> / {product.name}</nav>
       {store.orderingPaused ? <p className="sk-notice" role="status">{store.orderingPausedMessage || 'This shop is not taking orders right now.'}</p> : null}
       <article className="sk-product">
         <Gallery images={images} name={product.name} />

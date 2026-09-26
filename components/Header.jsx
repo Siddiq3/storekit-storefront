@@ -17,19 +17,19 @@ export function Header({ store, categories = [] }) {
           <details className="sk-menu">
             <summary aria-label="Menu"><MenuIcon /></summary>
             <nav className="sk-menu-panel" aria-label="Menu">
-              <Link href="/">Home</Link>
-              <Link href="/products">All products</Link>
-              {top.map((c) => <Link key={c.categoryId} href={categoryPath(c)}>{c.name}</Link>)}
-              <Link href="/track">Track order</Link>
+              <Link href="/" prefetch={false}>Home</Link>
+              <Link href="/products" prefetch={false}>All products</Link>
+              {top.map((c) => <Link key={c.categoryId} href={categoryPath(c)} prefetch={false}>{c.name}</Link>)}
+              <Link href="/track" prefetch={false}>Track order</Link>
             </nav>
           </details>
 
-          <Link href="/" className="sk-brand">
+          <Link href="/" className="sk-brand" prefetch={false}>
             {store.logoUrl ? <img src={store.logoUrl} alt={store.name} height="36" /> : <span>{store.name}</span>}
           </Link>
 
           <div className="sk-header-actions">
-            <Link href="/track" className="sk-track"><PinIcon /> Track order</Link>
+            <Link href="/track" className="sk-track" prefetch={false}><PinIcon /> Track order</Link>
             <CartLink />
           </div>
 

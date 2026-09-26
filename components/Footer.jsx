@@ -26,15 +26,15 @@ export function Footer({ store, categories = [] }) {
           {top.length ? (
             <div>
               <h2>Categories</h2>
-              <ul>{top.map((c) => <li key={c.categoryId}><Link href={categoryPath(c)}>{c.name}</Link></li>)}</ul>
+              <ul>{top.map((c) => <li key={c.categoryId}><Link href={categoryPath(c)} prefetch={false}>{c.name}</Link></li>)}</ul>
             </div>
           ) : null}
 
           <div>
             <h2>Support</h2>
             <ul>
-              {pages.map((p) => <li key={p.slug}><Link href={`/pages/${p.slug}`}>{p.title}</Link></li>)}
-              <li><Link href="/track">Track order</Link></li>
+              {pages.map((p) => <li key={p.slug}><Link href={`/pages/${p.slug}`} prefetch={false}>{p.title}</Link></li>)}
+              <li><Link href="/track" prefetch={false}>Track order</Link></li>
               {contact.phone ? <li><a href={`tel:${digits(contact.phone)}`}>{contact.phone}</a></li> : null}
               {whatsapp ? <li><a href={`https://wa.me/${whatsapp}`} rel="noopener noreferrer" target="_blank">WhatsApp</a></li> : null}
               {contact.email ? <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li> : null}

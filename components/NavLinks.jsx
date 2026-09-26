@@ -10,7 +10,7 @@ export function NavLinks({ links }) {
     <>
       {links.map(({ href, label }) => {
         const current = href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
-        return <Link key={href} href={href} aria-current={current ? 'page' : undefined}>{label}</Link>;
+        return <Link key={href} href={href} prefetch={false} aria-current={current ? 'page' : undefined}>{label}</Link>;
       })}
     </>
   );

@@ -31,5 +31,19 @@
   // Customer domains (Cloudflare for SaaS, a "*/*" route) are not set up yet.
   "routes": [
     { "pattern": "*.storekit.site/*", "zone_name": "storekit.site" }
-  ]
+  ],
+
+  "env": {
+    // TEMPORARY real-user testing before the domain exists: `--env preview` deploys a separate Worker,
+    // storekit-storefront-preview, on its workers.dev address only (no routes). It serves the one store named by
+    // PREVIEW_STORE_SLUG, passed by the preview workflow along with the same API settings and secret.
+    "preview": {
+      "workers_dev": true,
+      "preview_urls": false,
+      "routes": [],
+      "vars": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
 }

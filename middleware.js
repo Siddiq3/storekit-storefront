@@ -40,7 +40,8 @@ export async function middleware(request) {
   }
 
   const ip = shopperIp(request.headers, cfg.clientIpHeader);
-  const resolved = await resolveHost(request.headers.get('host'), { ip });
+  // A preview deployment (PREVIEW_STORE_SLUG) serves one fixed store on an address that is not its hostname.
+  const resolved = await resolveHost(cfg.previewStoreHost ?? request.headers.get('host'), { ip });
 
   if (resolved.state === 'invalid') return state(request, STATE_PATHS.invalidHost, 400);
   if (resolved.state === 'not_found') return state(request, STATE_PATHS.notFound, 404);
@@ -57,7 +58,10 @@ export async function middleware(request) {
   headers.set(STORE_HEADERS.host, request.headers.get('host') ?? '');
   headers.set(STORE_HEADERS.canonicalHost, resolved.canonicalHost);
 
-  return NextResponse.next({ request: { headers } });
+  const response = NextResponse.next({ request: { headers } });
+  // A preview address is temporary and its canonical links name the real domain: keep it out of search results.
+  if (cfg.previewStoreHost) response.headers.set('x-robots-tag', 'noindex, nofollow');
+  return response;
 }
 
 export const config = {
