@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
 import { middleware } from '../middleware.js';
 import { clearResolverCache } from '@/lib/resolver.js';
@@ -105,5 +105,52 @@ describe('middleware: hostname -> store', () => {
     } finally {
       process.env.EDGE_SHARED_SECRET = saved;
     }
+  });
+});
+
+describe('middleware: preview deployment (PREVIEW_STORE_SLUG)', () => {
+  let calls;
+  beforeEach(() => {
+    clearResolverCache();
+    process.env.PREVIEW_STORE_SLUG = 'asha';
+    calls = mockApi({ 'GET /public/hosts/resolve': ({ url }) => {
+      const host = url.searchParams.get('host');
+      return host in STORES ? ok(STORES[host]) : fail(404, 'STORE_NOT_FOUND');
+    } });
+  });
+  afterEach(() => { delete process.env.PREVIEW_STORE_SLUG; });
+
+  it('serves its one store on a workers.dev address, asking the API about <slug>.<root>', async () => {
+    const response = await middleware(request('storekit-preview.example.workers.dev', '/products'));
+    expect(calls[0].url.searchParams.get('host')).toBe('asha.storekit.site');
+    expect(forwarded(response, 'x-storekit-slug')).toBe('asha');
+    expect(forwarded(response, 'x-storekit-host')).toBe('storekit-preview.example.workers.dev');
+    expect(response.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+  });
+
+  it('still cannot be told which store to use by the client', async () => {
+    const response = await middleware(request('storekit-preview.example.workers.dev', '/', { 'x-storekit-slug': 'demo' }));
+    expect(forwarded(response, 'x-storekit-slug')).toBe('asha');
+  });
+
+  it('a slug the API does not know is the ordinary 404 state page', async () => {
+    process.env.PREVIEW_STORE_SLUG = 'nobody';
+    const response = await middleware(request('storekit-preview.example.workers.dev'));
+    expect(response.status).toBe(404);
+    expect(rewritten(response)).toContain('/store-not-found');
+  });
+
+  it('a malformed slug is a configuration error, not a store', async () => {
+    process.env.PREVIEW_STORE_SLUG = 'Not A Slug!';
+    const response = await middleware(request('storekit-preview.example.workers.dev'));
+    expect(response.status).toBe(503);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('without it, production behaviour is unchanged: no robots header, the Host is what is resolved', async () => {
+    delete process.env.PREVIEW_STORE_SLUG;
+    const response = await middleware(request('asha.storekit.site'));
+    expect(calls[0].url.searchParams.get('host')).toBe('asha.storekit.site');
+    expect(response.headers.get('x-robots-tag')).toBeNull();
   });
 });

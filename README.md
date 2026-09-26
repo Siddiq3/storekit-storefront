@@ -194,6 +194,12 @@ Deploys run only from `.github/workflows/deploy.yml`, started by hand (dry run b
 `STOREFRONT_ROOT_URL` from the GitHub environment `production`'s variables and `EDGE_SHARED_SECRET` from its secrets,
 and gives the secret to the Worker as an encrypted Worker secret. `NODE_ENV=production` is set in `wrangler.jsonc`.
 
+**Temporary preview (before the domain exists).** `.github/workflows/deploy-preview.yml` deploys a separate Worker,
+`storekit-storefront-preview` (`wrangler.jsonc`, env `preview`), to its `workers.dev` address only. A `workers.dev`
+hostname is not a store hostname, so that deployment sets `PREVIEW_STORE_SLUG`: the middleware asks the API about
+`<slug>.<STOREFRONT_ROOT_URL host>` instead of the request's Host, and every response carries `X-Robots-Tag: noindex`.
+The production Worker never sets it.
+
 ## What is not here
 
 Customer accounts or login; card or online payment (the API has none for shoppers); owner-written pages; customer

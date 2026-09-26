@@ -1,0 +1,146 @@
+name: Deploy storefront preview (workers.dev, temporary)
+
+# TEMPORARY real-user testing before the production domain exists. Deploys the separate Worker
+# storekit-storefront-preview (wrangler.jsonc, env "preview") to its workers.dev address only, serving the one store
+# named by `store_slug`. Manual only; `dry_run` (on by default) stops before uploading. Production is untouched.
+on:
+  workflow_dispatch:
+    inputs:
+      store_slug:
+        description: 'Store slug to serve (e.g. store1)'
+        type: string
+        required: true
+      dry_run:
+        description: 'Build and check only; do not upload to Cloudflare'
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-storefront-preview
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build, test and deploy preview
+    runs-on: ubuntu-latest
+    # Secrets and variables come from the GitHub environment "preview" (Settings -> Environments).
+    environment: preview
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check required settings
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          STOREFRONT_ROOT_URL: ${{ vars.STOREFRONT_ROOT_URL }}
+          EDGE_SHARED_SECRET: ${{ secrets.EDGE_SHARED_SECRET }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          STORE_SLUG: ${{ inputs.store_slug }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          fail=0
+          for name in API_BASE_URL STOREFRONT_ROOT_URL EDGE_SHARED_SECRET; do
+            if [ -z "${!name:-}" ]; then echo "::error::$name is not set in the preview environment"; fail=1; fi
+          done
+          if [ "$DRY_RUN" != "true" ]; then
+            for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+              if [ -z "${!name:-}" ]; then echo "::error::$name is not set in the preview environment"; fail=1; fi
+            done
+          fi
+          case "$API_BASE_URL" in https://*/v1) ;; *) echo "::error::API_BASE_URL must be https and end in /v1"; fail=1 ;; esac
+          case "$STOREFRONT_ROOT_URL" in https://*) ;; *) echo "::error::STOREFRONT_ROOT_URL must be https"; fail=1 ;; esac
+          if [ "${#EDGE_SHARED_SECRET}" -lt 32 ]; then echo "::error::EDGE_SHARED_SECRET must be at least 32 characters"; fail=1; fi
+          if ! printf '%s' "$STORE_SLUG" | grep -Eq '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$'; then
+            echo "::error::store_slug must be a store slug (lower-case letters, digits and hyphens)"; fail=1
+          fi
+          exit "$fail"
+
+      # The Worker will ask the API about <slug>.<storefront root>. Ask it the same question now, so a wrong slug,
+      # a store that is not open, or a STOREFRONT_ROOT_URL that differs from the API's STOREFRONT_BASE_URL fails
+      # here instead of on the testers' phones.
+      - name: Check the API knows this store
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          STOREFRONT_ROOT_URL: ${{ vars.STOREFRONT_ROOT_URL }}
+          STORE_SLUG: ${{ inputs.store_slug }}
+        run: |
+          set -euo pipefail
+          root_host="${STOREFRONT_ROOT_URL#https://}"; root_host="${root_host%%/*}"
+          host="${STORE_SLUG}.${root_host}"
+          code=$(curl -s -o response.json -w '%{http_code}' --get --data-urlencode "host=${host}" "${API_BASE_URL}/public/hosts/resolve")
+          echo "GET /public/hosts/resolve?host=${host} -> ${code}"
+          if [ "$code" != "200" ]; then
+            echo "::error::The API does not resolve ${host} (HTTP ${code}). Check the slug, that the store is open, and that STOREFRONT_ROOT_URL equals the API's STOREFRONT_BASE_URL."
+            exit 1
+          fi
+          rm -f response.json
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build for Workers and check the browser bundle
+        run: |
+          set -euo pipefail
+          SENTINEL="sentinel-$(openssl rand -hex 24)"
+          EDGE_SHARED_SECRET="$SENTINEL" API_BASE_URL=https://api.storekit.site/v1 npm run cf:build
+          EDGE_SHARED_SECRET="$SENTINEL" npm run verify:bundle
+
+      - name: Deploy preview to workers.dev
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          STOREFRONT_ROOT_URL: ${{ vars.STOREFRONT_ROOT_URL }}
+          EDGE_SHARED_SECRET: ${{ secrets.EDGE_SHARED_SECRET }}
+          STORE_SLUG: ${{ inputs.store_slug }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          umask 077
+          secrets_file="$RUNNER_TEMP/storefront-secrets.json"
+          trap 'rm -f "$secrets_file"' EXIT
+          jq -n --arg s "$EDGE_SHARED_SECRET" '{EDGE_SHARED_SECRET: $s}' > "$secrets_file"
+
+          extra=()
+          if [ "$DRY_RUN" = "true" ]; then extra+=(--dry-run); fi
+
+          npx opennextjs-cloudflare deploy --env preview "${extra[@]}" \
+            --var "API_BASE_URL:$API_BASE_URL" \
+            --var "STOREFRONT_ROOT_URL:$STOREFRONT_ROOT_URL" \
+            --var "PREVIEW_STORE_SLUG:$STORE_SLUG" \
+            --secrets-file "$secrets_file" | tee "$RUNNER_TEMP/deploy.log"
+
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' "$RUNNER_TEMP/deploy.log" | head -1 || true)
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test the preview
+        if: ${{ !inputs.dry_run }}
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          STORE_SLUG: ${{ inputs.store_slug }}
+        run: |
+          set -euo pipefail
+          if [ -z "$URL" ]; then echo "::error::Could not read the workers.dev URL from the deploy output"; exit 1; fi
+          for path in / /products /cart; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 3 --retry-all-errors "${URL}${path}")
+            echo "GET ${path} -> ${code}"
+            [ "$code" = "200" ] || { echo "::error::${URL}${path} returned ${code}"; exit 1; }
+          done
+          echo "### Preview for \`${STORE_SLUG}\`: ${URL}" >> "$GITHUB_STEP_SUMMARY"
