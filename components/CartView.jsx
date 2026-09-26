@@ -62,7 +62,7 @@ export function CartView({ orderingPaused, pausedMessage }) {
               <li className="sk-line" key={key}>
                 {(p?.imageUrl ?? line.imageUrl) ? <img src={p?.imageUrl ?? line.imageUrl} alt="" width="72" height="72" loading="lazy" /> : <div className="sk-skeleton" style={{ width: 72, height: 72 }} />}
                 <div>
-                  <Link className="sk-line-name" href={productPath({ productId: line.productId, slug: line.slug })}>{p?.name ?? line.name}</Link>
+                  <Link className="sk-line-name" href={productPath({ productId: line.productId, slug: line.slug })} prefetch={false}>{p?.name ?? line.name}</Link>
                   {(p?.variantLabel ?? line.variantLabel) ? <div className="sk-hint">{p?.variantLabel ?? line.variantLabel}</div> : null}
                   <div><span className="sk-price">{money(p?.unitPrice ?? line.unitPrice)}</span>{p?.mrp > p?.unitPrice ? <span className="sk-mrp">{money(p.mrp)}</span> : null}</div>
                   {issue ? <p className="sk-error" role="alert">{issue}{p?.issue === 'insufficient_stock' && p.accepted > 0 ? <> <button type="button" className="sk-link-button" onClick={() => cart.setQuantity(key, p.accepted)}>Use {p.accepted}</button></> : null}</p> : null}
