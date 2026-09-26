@@ -35,7 +35,15 @@ describe('forwarding the shopper to the API', () => {
   it('never follows a redirect, so the secret cannot be handed to another host', async () => {
     const calls = mockApi({ 'GET /public/x': ok({}) });
     await apiFetch('/public/x', { ip: '203.0.113.7' });
-    expect(calls[0].init.redirect).toBe('error');
+    expect(calls[0].init.redirect).toBe('manual');
+  });
+
+  it('a redirect answer is an outage, not a place to send the secret next', async () => {
+    const calls = mockApi({ 'GET /public/x': new Response(null, { status: 302, headers: { location: 'https://evil.test/steal' } }) });
+    const error = await apiFetch('/public/x', { ip: '203.0.113.7' }).catch((e) => e);
+    expect(isApiError(error)).toBe(true);
+    expect(error.unavailable).toBe(true);
+    expect(calls).toHaveLength(1);
   });
 
   it('sends the secret only to the configured API origin', async () => {

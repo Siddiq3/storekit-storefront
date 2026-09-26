@@ -1,0 +1,35 @@
+// Cloudflare Workers deployment of the storefront (built with `opennextjs-cloudflare build`).
+//
+// The API address, the storefront root and the edge secret are NOT set here. The deploy workflow passes them on
+// each deploy:
+//   API_BASE_URL, STOREFRONT_ROOT_URL  (--var, from GitHub environment variables)
+//   EDGE_SHARED_SECRET                 (--secrets-file, from a GitHub environment secret)
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "storekit-storefront",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // OpenNext copies Worker variables into process.env but does not set NODE_ENV there, and the middleware reads it
+  // at runtime (lib/config.js). Without this the middleware would skip the production checks (https API, secret
+  // required) that the rest of the app applies.
+  "vars": {
+    "NODE_ENV": "production"
+  },
+
+  // Served only on store subdomains. No workers.dev or preview address: a request there has no store hostname.
+  "workers_dev": false,
+  "preview_urls": false,
+
+  // Every store subdomain. storekit.site and www are other apps: exclude www.storekit.site/* from this route in the
+  // Cloudflare dashboard (a route with no Worker). api.storekit.site is DNS-only, so Worker routes never see it.
+  // Customer domains (Cloudflare for SaaS, a "*/*" route) are not set up yet.
+  "routes": [
+    { "pattern": "*.storekit.site/*", "zone_name": "storekit.site" }
+  ]
+}

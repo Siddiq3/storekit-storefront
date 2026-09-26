@@ -8,7 +8,7 @@ export function CategoryCards({ categories }) {
     <ul className="sk-cats">
       {categories.map((category) => (
         <li key={category.categoryId}>
-          <Link href={categoryPath(category)} className={category.imageUrl ? 'sk-cat' : 'sk-cat sk-cat-plain'}>
+          <Link href={categoryPath(category)} prefetch={false} className={category.imageUrl ? 'sk-cat' : 'sk-cat sk-cat-plain'}>
             {category.imageUrl ? <img src={category.imageUrl} alt="" width="600" height="800" loading="lazy" decoding="async" /> : null}
             <span className="sk-cat-body">
               <span className="sk-cat-name">{category.name}</span>

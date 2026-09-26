@@ -16,3 +16,8 @@ coverage/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Cloudflare Workers build output and local secrets
+.open-next/
+.wrangler/
+.dev.vars*

@@ -179,6 +179,21 @@ entitlement); this app never looks at a plan id.
   the CNAME target. No storefront change is needed.
 - Nothing is deployed yet. Do not enable wildcard DNS until the API's `EDGE_SHARED_SECRET` is set.
 
+### Cloudflare Workers
+
+The storefront runs as one Cloudflare Worker (Workers Paid), built with the OpenNext adapter. `wrangler.jsonc` routes
+`*.storekit.site/*` to it; the Worker is the origin, so the original `Host` reaches the middleware and nothing can reach
+the app around Cloudflare.
+
+```bash
+npm run cf:build     # next build + OpenNext bundle into .open-next/
+npm run cf:preview   # the same bundle in the local Workers runtime (settings from .dev.vars)
+```
+
+Deploys run only from `.github/workflows/deploy.yml`, started by hand (dry run by default). It takes `API_BASE_URL` and
+`STOREFRONT_ROOT_URL` from the GitHub environment `production`'s variables and `EDGE_SHARED_SECRET` from its secrets,
+and gives the secret to the Worker as an encrypted Worker secret. `NODE_ENV=production` is set in `wrangler.jsonc`.
+
 ## What is not here
 
 Customer accounts or login; card or online payment (the API has none for shoppers); owner-written pages; customer

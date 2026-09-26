@@ -8,7 +8,7 @@ const root = join(import.meta.dirname, '..');
 
 const walk = (dir, out = []) => {
   for (const name of readdirSync(dir)) {
-    if (['node_modules', '.next', 'packages', 'coverage', '.git'].includes(name)) continue;
+    if (['node_modules', '.next', '.open-next', '.wrangler', 'packages', 'coverage', '.git'].includes(name)) continue;
     const path = join(dir, name);
     if (statSync(path).isDirectory()) walk(path, out); else out.push(path);
   }

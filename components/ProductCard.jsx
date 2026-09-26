@@ -8,7 +8,7 @@ export function ProductCard({ product, storeName }) {
   const off = product.discountPercent > 0 ? `${product.discountPercent}% off` : null;
   return (
     <li>
-      <Link href={productPath(product)} className="sk-card">
+      <Link href={productPath(product)} className="sk-card" prefetch={false}>
         <div className="sk-card-media">
           {product.imageUrl
             ? <img src={product.imageUrl} alt={product.name} width="400" height="500" loading="lazy" decoding="async" />
