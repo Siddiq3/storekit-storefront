@@ -16,7 +16,7 @@ export async function generateMetadata() {
 const SectionHead = ({ id, title }) => (
   <div className="sk-section-head">
     <h2 id={id}>{title}</h2>
-    <Link className="sk-pill" href="/products">View All <ArrowIcon /></Link>
+    <Link className="sk-pill" href="/products" prefetch={false}>View All <ArrowIcon /></Link>
   </div>
 );
 
