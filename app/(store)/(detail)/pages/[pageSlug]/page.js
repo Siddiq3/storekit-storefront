@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { StateScreen } from '@/components/StateScreen.jsx';
+import { Markdown } from '@/lib/markdown.jsx';
 import { isApiError } from '@/lib/errors.js';
 import { loadStoreOrState } from '@/lib/load.js';
 import { getPage } from '@/lib/store-data.js';
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }) {
   }
 }
 
-/** An owner's own page — shipping, refunds, about. The body is plain text: it is shown as text, never as markup. */
+/** An owner's own page — a FAQ, about. The body is the same safe Markdown subset as policies: text, never markup. */
 export default async function StorePage({ params }) {
   const loaded = await loadStoreOrState();
   if (!loaded.ok) return null;
@@ -36,7 +37,7 @@ export default async function StorePage({ params }) {
   return (
     <article style={{ maxWidth: 760, margin: '0 auto' }}>
       <h1 style={{ marginBottom: 20 }}>{page.title}</h1>
-      <div className="sk-desc" style={{ color: 'inherit' }}>{page.body}</div>
+      <Markdown text={page.body} className="sk-prose" />
     </article>
   );
 }

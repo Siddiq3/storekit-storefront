@@ -3,13 +3,15 @@ import { whatsappLink } from '@storekit/shared';
 import { loadConfig } from '@/lib/config.js';
 import { categoryPath, safeHttpsUrl } from '@/lib/urls.js';
 import { ChatIcon, MailIcon, PhoneIcon, PinIcon } from './icons.jsx';
+import { PolicyLink } from './PolicyLink.jsx';
 
 const digits = (value) => String(value ?? '').replace(/\D/g, '');
 const SOCIAL_LABELS = { instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube', twitter: 'X', x: 'X', website: 'Website' };
 
 /**
- * Brand, then three labelled columns — Shop (where to go), Help (the store's policies) and Contact (how to reach
- * the owner) — so a customer finds a phone number under "Contact", not between two policies.
+ * Brand, then three labelled columns — Shop (where to go), Support (the store's policies and pages) and Contact (how
+ * to reach the owner) — so a customer finds a phone number under "Contact", not between two policies. A policy link
+ * opens the policy in a dialog over the page (PolicyLink); its address also works on its own.
  */
 export function Footer({ store, categories = [] }) {
   const { contact = {}, social = {} } = store;
@@ -20,6 +22,7 @@ export function Footer({ store, categories = [] }) {
   const branding = store.showBranding ? loadConfig().rootUrl : null;
   const top = categories.filter((c) => !c.parentId).slice(0, 6);
   const pages = store.pages ?? [];
+  const policies = store.policies ?? [];
   const about = store.footerText || store.description;
   const hasContact = phone || whatsapp || contact.email || address;
 
@@ -49,10 +52,13 @@ export function Footer({ store, categories = [] }) {
             </ul>
           </nav>
 
-          {pages.length ? (
-            <nav aria-labelledby="ft-help">
-              <h2 id="ft-help">Help</h2>
-              <ul>{pages.map((p) => <li key={p.slug}><Link href={`/pages/${p.slug}`} prefetch={false}>{p.title}</Link></li>)}</ul>
+          {policies.length || pages.length ? (
+            <nav aria-labelledby="ft-support">
+              <h2 id="ft-support">Support</h2>
+              <ul>
+                {policies.map((p) => <li key={p.type}><PolicyLink slug={p.slug}>{p.title}</PolicyLink></li>)}
+                {pages.map((p) => <li key={p.slug}><Link href={`/pages/${p.slug}`} prefetch={false}>{p.title}</Link></li>)}
+              </ul>
             </nav>
           ) : null}
 

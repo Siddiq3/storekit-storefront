@@ -127,7 +127,7 @@ describe('header and footer', () => {
     expect(out).toContain('href="/category/earrings"');
     expect(out).toContain('Track order');
     // Labelled columns: a phone number sits under Contact, not among the policies.
-    for (const heading of ['>Shop<', '>Help<', '>Contact<']) expect(out).toContain(heading);
+    for (const heading of ['>Shop<', '>Support<', '>Contact<']) expect(out).toContain(heading);
     expect(out).toContain('href="/products"');
     expect(out).toContain('https://wa.me/91');
     expect(out).toContain('All Rights Reserved');

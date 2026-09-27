@@ -216,8 +216,8 @@ main.sk-main { flex: 1; padding: 0 0 48px; }
 .sk-footer-logo img { height: 40px; width: auto; max-width: 180px; object-fit: contain; }
 .sk-footer-brand p { margin: 0; max-width: 40ch; line-height: 1.6; }
 .sk-footer-social { display: flex; flex-wrap: wrap; gap: 8px 16px; }
-.sk-footer h2 { color: var(--sk-text); font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
-.sk-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.sk-footer-grid > * > h2 { color: var(--sk-text); font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+.sk-footer-grid > * > ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .sk-footer a { text-decoration: none; }
 .sk-footer a:hover { color: var(--sk-text); text-decoration: underline; }
 .sk-footer-contact { grid-column: 1 / -1; }
@@ -225,6 +225,31 @@ main.sk-main { flex: 1; padding: 0 0 48px; }
 .sk-footer-contact svg { flex: none; margin-top: 2px; }
 .sk-copyright { border-top: 1px solid var(--sk-line); font-size: 0.8125rem; }
 .sk-copyright .sk-container { padding-top: 16px; padding-bottom: 16px; display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+
+/* Policies and owner pages: readable long-form text */
+.sk-policy-page { max-width: 760px; margin: 0 auto; }
+.sk-policy h1 { font-size: clamp(1.6rem, 4.5vw, 2.25rem); margin-bottom: 20px; }
+.sk-prose { line-height: 1.7; overflow-wrap: anywhere; }
+.sk-prose h2 { font-size: 1.1875rem; font-weight: 600; margin: 28px 0 8px; }
+.sk-prose h3 { font-size: 1rem; font-weight: 600; margin: 20px 0 6px; }
+.sk-prose p { margin: 0 0 14px; }
+.sk-prose ul, .sk-prose ol { margin: 0 0 14px; padding-left: 22px; display: grid; gap: 6px; }
+.sk-prose ul { list-style: disc; }
+.sk-prose ol { list-style: decimal; }
+.sk-prose > :first-child { margin-top: 0; }
+
+/* Policy modal: a native <dialog>, a sheet on phones and a centred panel on larger screens */
+/* Base text reset: a dialog opened from the footer must not inherit the footer's small muted text. */
+.sk-modal { font-size: 1rem; text-align: left; border: 0; padding: 0; margin: auto auto 0; width: 100%; max-width: 100%; max-height: 88vh; border-radius: 16px 16px 0 0; background: var(--sk-bg); color: var(--sk-text); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25); }
+.sk-modal::backdrop { background: rgba(17, 24, 39, 0.5); }
+.sk-modal-body { position: relative; padding: 28px 20px 32px; overflow-y: auto; max-height: 88vh; }
+.sk-modal-close { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; border-radius: 999px; background: var(--sk-surface-strong, var(--sk-surface)); font-size: 1.5rem; line-height: 1; cursor: pointer; color: inherit; }
+.sk-modal .sk-policy h1 { padding-right: 44px; }
+
+/* The return rule under the buy button */
+.sk-returns { display: flex; align-items: center; gap: 8px; margin: 16px 0 0; font-size: 0.9375rem; }
+.sk-returns svg { flex: none; }
+.sk-returns a { margin-left: 4px; font-size: 0.875rem; color: var(--sk-muted); }
 
 /* States and skeletons */
 .sk-state { text-align: center; max-width: 460px; margin: 48px auto; padding: 0 16px; display: grid; gap: 12px; justify-items: center; }
@@ -260,6 +285,8 @@ main.sk-main { flex: 1; padding: 0 0 48px; }
   .sk-hero { padding: 64px 0 56px; }
   .sk-banner img { aspect-ratio: 16 / 6; }
   .sk-product { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; }
+  .sk-modal { margin: auto; width: min(720px, calc(100vw - 48px)); border-radius: 16px; max-height: 84vh; }
+  .sk-modal-body { padding: 36px 40px 40px; max-height: 84vh; }
   .sk-two { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
   .sk-footer > .sk-container { padding-top: 56px; padding-bottom: 48px; }
   .sk-footer-grid { grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); column-gap: 48px; }

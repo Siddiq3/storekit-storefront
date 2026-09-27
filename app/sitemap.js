@@ -12,6 +12,8 @@ export default async function sitemap() {
   const url = (path) => absoluteUrl(canonicalHost, path);
 
   const entries = [{ url: url('/') }, { url: url('/products') }];
+  // Only the policies the owner shows; a hidden one is a 404 and never listed.
+  for (const policy of loaded.store.policies ?? []) entries.push({ url: url(`/policies/${policy.slug}`) });
 
   try {
     for (const category of await getCategories(ctx.slug, ctx)) entries.push({ url: url(categoryPath(category)) });
