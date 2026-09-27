@@ -100,9 +100,9 @@ describe('the value strip only claims what the checkout can do', () => {
   });
 
   it('free shipping follows the delivery rule, with the real threshold', () => {
-    expect(strip({ delivery: { mode: 'free_above', freeAboveSubtotal: 50000 } })).toContain('₹500 or more');
-    expect(strip({ delivery: { mode: 'free' } })).toContain('Free delivery on every order');
-    expect(strip({ delivery: { mode: 'fixed', fixedFee: 4900 }, paymentMethods: [] })).toBe('');
+    expect(strip({ delivery: { methods: [], freeDeliveryAbove: 50000, freeDeliveryAlways: false } })).toContain('₹500 or more');
+    expect(strip({ delivery: { methods: [], freeDeliveryAbove: 0, freeDeliveryAlways: true } })).toContain('Free delivery on every order');
+    expect(strip({ delivery: { methods: [], freeDeliveryAbove: 0, freeDeliveryAlways: false }, paymentMethods: [] })).toBe('');
   });
 });
 

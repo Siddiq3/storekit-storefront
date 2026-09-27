@@ -37,7 +37,11 @@ export const rawStore = (over = {}) => ({
   social: { instagram: 'https://instagram.com/asha' },
   footerText: '',
   orderingPaused: false,
-  delivery: { mode: 'free' },
+  delivery: {
+    methods: [{ id: 'standard01', name: 'Standard delivery', description: '', kind: 'delivery', primary: true, pricing: { type: 'free', flatFee: 0, freeAbove: 0, locationBased: false }, estimate: null }],
+    freeDeliveryAbove: 0,
+    freeDeliveryAlways: true,
+  },
   paymentMethods: ['COD', 'UPI_MANUAL'],
   poweredByBranding: true,
   ...over,

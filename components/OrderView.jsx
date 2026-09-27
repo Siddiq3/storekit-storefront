@@ -75,7 +75,8 @@ export function OrderView({ order, token, placed }) {
           <dl className="sk-totals">
             <div><dt>Subtotal</dt><dd>{money(order.totals.subtotal)}</dd></div>
             {order.totals.couponDiscount > 0 ? <div><dt>Coupon</dt><dd>−{money(order.totals.couponDiscount)}</dd></div> : null}
-            <div><dt>Delivery</dt><dd>{order.totals.deliveryFee > 0 ? money(order.totals.deliveryFee) : 'Free'}</dd></div>
+            <div><dt>{order.delivery?.name ?? 'Delivery'}</dt><dd>{order.totals.deliveryFee > 0 ? money(order.totals.deliveryFee) : 'Free'}</dd></div>
+            {order.delivery?.estimate ? <p className="sk-hint" style={{ margin: 0 }}>{order.delivery.estimate.label} (estimated when you ordered)</p> : null}
             <div className="sk-total"><dt>Total</dt><dd>{money(order.totals.total)}</dd></div>
           </dl>
           <p className="sk-hint" style={{ marginBottom: 0 }}>

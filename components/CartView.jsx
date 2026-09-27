@@ -7,6 +7,7 @@ import { readCoupon, useQuote, writeCoupon } from './useQuote.js';
 import { lineKey } from '@/lib/cart.js';
 import { money } from '@/lib/money.js';
 import { productPath } from '@/lib/urls.js';
+import { FreeDeliveryProgress } from './DeliveryOptions.jsx';
 
 const ISSUES = {
   unavailable: () => 'This item is no longer available. Remove it to continue.',
@@ -99,10 +100,14 @@ export function CartView({ orderingPaused, pausedMessage }) {
             <div><dt>Subtotal</dt><dd>{money(quote.subtotal)}</dd></div>
             {quote.couponDiscount > 0 ? <div><dt>Coupon</dt><dd>−{money(quote.couponDiscount)}</dd></div> : null}
             <div><dt>Delivery</dt><dd>{quote.deliveryFee > 0 ? money(quote.deliveryFee) : 'Free'}</dd></div>
-            {quote.deliveryMessage ? <p className="sk-hint" style={{ margin: 0 }}>{quote.deliveryMessage}</p> : null}
+            {quote.deliveryOptions?.some((o) => o.dependsOnPincode) ? <p className="sk-hint" style={{ margin: 0 }}>Final delivery charge depends on your pincode.</p> : null}
+            {quote.deliveryEstimate ? <p className="sk-hint" style={{ margin: 0 }}>{quote.deliveryEstimate.label}</p> : null}
             <div className="sk-total"><dt>Total</dt><dd>{money(quote.total)}</dd></div>
             {quote.itemDiscount > 0 ? <p className="sk-off" style={{ margin: 0 }}>You save {money(quote.itemDiscount + quote.couponDiscount)}</p> : null}
           </dl>
+        ) : null}
+        {quote ? (
+          <FreeDeliveryProgress quote={quote} />
         ) : <div className="sk-skeleton" style={{ height: 120 }} aria-busy="true" />}
 
         {canCheckout

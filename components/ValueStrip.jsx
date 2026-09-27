@@ -9,11 +9,11 @@ import { money } from '@/lib/money.js';
 export function ValueStrip({ store }) {
   const cod = store.paymentMethods.includes('COD');
   const upi = store.paymentMethods.includes('UPI_MANUAL');
-  const { mode, freeAboveSubtotal } = store.delivery ?? {};
-  const shipping = mode === 'free'
+  const { freeDeliveryAlways, freeDeliveryAbove } = store.delivery ?? {};
+  const shipping = freeDeliveryAlways
     ? { title: 'Free Shipping', text: 'Free delivery on every order.' }
-    : mode === 'free_above' && freeAboveSubtotal > 0
-      ? { title: 'Free Shipping', text: `Free delivery on orders of ${money(freeAboveSubtotal)} or more.` }
+    : freeDeliveryAbove > 0
+      ? { title: 'Free Shipping', text: `Free delivery on orders of ${money(freeDeliveryAbove)} or more.` }
       : null;
 
   if (!cod && !upi && !shipping) return null;

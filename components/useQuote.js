@@ -6,12 +6,12 @@ import { postJson } from '@/lib/client-api.js';
 
 /**
  * The server's quote for the cart: every price, discount, fee and total a shopper sees comes from here. Re-run
- * (after a short pause) when the lines, coupon, pincode or payment method change; a stale answer never overwrites a
+ * (after a short pause) when the lines, coupon, pincode, payment method or delivery method change; a stale answer never overwrites a
  * newer one.
  */
-export function useQuote({ lines, ready, couponCode, pincode, paymentMethod }) {
+export function useQuote({ lines, ready, couponCode, pincode, paymentMethod, deliveryMethodId }) {
   const [state, setState] = useState({ status: 'idle', quote: null, error: null });
-  const signature = JSON.stringify([toQuoteLines(lines), couponCode || null, pincode || null, paymentMethod || null]);
+  const signature = JSON.stringify([toQuoteLines(lines), couponCode || null, pincode || null, paymentMethod || null, deliveryMethodId || null]);
   const [refreshes, setRefreshes] = useState(0);
 
   useEffect(() => {
@@ -26,6 +26,7 @@ export function useQuote({ lines, ready, couponCode, pincode, paymentMethod }) {
         ...(couponCode ? { couponCode } : {}),
         ...(/^[1-9]\d{5}$/.test(pincode ?? '') ? { pincode } : {}),
         ...(paymentMethod ? { paymentMethod } : {}),
+        ...(deliveryMethodId ? { deliveryMethodId } : {}),
       });
       if (!current) return;
       setState(result.ok

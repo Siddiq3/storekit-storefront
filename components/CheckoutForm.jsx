@@ -9,6 +9,7 @@ import { emptyAddress, validateAddress, orderBody, idempotencyKeyFor, clearIdemp
 import { postJson } from '@/lib/client-api.js';
 import { toQuoteLines } from '@/lib/cart.js';
 import { money } from '@/lib/money.js';
+import { DeliveryOptions, FreeDeliveryProgress, deliveryPrice } from './DeliveryOptions.jsx';
 
 const FIELD_LABELS = {
   fullName: ['Full name', 'name'], mobile: ['Mobile number', 'tel'], houseNo: ['House / flat number', 'address-line1'],
@@ -42,6 +43,8 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
   const alertRef = useRef(null);
   const [remember, setRemember] = useState(true);
   const [restored, setRestored] = useState(false);
+  // Empty until the shopper picks one: the server then prices the store's main method.
+  const [deliveryMethodId, setDeliveryMethodId] = useState('');
 
   useEffect(() => { setCoupon(readCoupon()); }, []);
 
@@ -51,7 +54,18 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
     if (saved) { setValues((v) => ({ ...v, ...saved, instructions: v.instructions })); setRestored(true); }
   }, []);
 
-  const { status, quote, refresh } = useQuote({ lines: cart.lines, ready: cart.ready, couponCode: coupon, pincode: values.pincode, paymentMethod: method });
+  const { status, quote, refresh } = useQuote({
+    lines: cart.lines, ready: cart.ready, couponCode: coupon, pincode: values.pincode, paymentMethod: method, deliveryMethodId,
+  });
+
+  // A method that has gone since the page loaded: the quote fell back to the main one; follow it and say so.
+  useEffect(() => {
+    if (quote?.deliveryMethodUnavailable) {
+      setDeliveryMethodId(quote.deliveryMethodId);
+      setNotice('That delivery option is no longer available, so we picked another. Please check it below.');
+    }
+  }, [quote?.deliveryMethodUnavailable, quote?.deliveryMethodId]);
+  const selectedDelivery = quote?.deliveryOptions?.find((o) => o.id === quote.deliveryMethodId);
 
   useEffect(() => { if (failure) alertRef.current?.focus(); }, [failure]);
 
@@ -83,7 +97,10 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
       return;
     }
 
-    const body = orderBody({ lines: toQuoteLines(cart.lines), address: checked.address, couponCode: coupon, paymentMethod: method, expectedTotal: quote.total });
+    const body = orderBody({
+      lines: toQuoteLines(cart.lines), address: checked.address, couponCode: coupon, paymentMethod: method,
+      deliveryMethodId: quote.deliveryMethodId, expectedTotal: quote.total,
+    });
     setSubmitting(true);
     const result = await postJson('/api/orders', body, { 'x-idempotency-key': idempotencyKeyFor(body) });
 
@@ -98,6 +115,12 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
     }
 
     setSubmitting(false);
+    if (result.code === 'DELIVERY_METHOD_UNAVAILABLE') {
+      setDeliveryMethodId('');
+      refresh();
+      setNotice('That delivery option is no longer available. Please choose another and place your order again.');
+      return;
+    }
     if (result.code === 'TOTAL_MISMATCH') {
       refresh();
       setNotice('Prices or delivery changed while you were checking out. Please look at the new total, then place your order again.');
@@ -159,6 +182,10 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
           </p>
         ) : null}
 
+        {quote?.deliveryOptions?.length > 1 ? (
+          <DeliveryOptions options={quote.deliveryOptions} selectedId={quote.deliveryMethodId} onSelect={setDeliveryMethodId} />
+        ) : null}
+
         <fieldset className="sk-panel" style={{ margin: 0 }}>
           <legend className="sk-visually-hidden">Payment method</legend>
           <h2>Payment</h2>
@@ -186,10 +213,15 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
             <dl className="sk-totals" aria-live="polite">
               <div><dt>Subtotal</dt><dd>{money(quote.subtotal)}</dd></div>
               {quote.couponDiscount > 0 ? <div><dt>Coupon</dt><dd>−{money(quote.couponDiscount)}</dd></div> : null}
-              <div><dt>Delivery</dt><dd>{quote.deliveryFee > 0 ? money(quote.deliveryFee) : 'Free'}</dd></div>
-              {quote.deliveryMessage ? <p className="sk-hint" style={{ margin: 0 }}>{quote.deliveryMessage}</p> : null}
+              <div>
+                <dt>{selectedDelivery ? selectedDelivery.name : 'Delivery'}</dt>
+                <dd>{selectedDelivery ? deliveryPrice(selectedDelivery) : quote.deliveryFee > 0 ? money(quote.deliveryFee) : 'Free'}</dd>
+              </div>
+              {quote.deliveryEstimate ? <p className="sk-hint" style={{ margin: 0 }}>{quote.deliveryEstimate.label}</p> : null}
+              {quote.deliverable === false ? <p className="sk-error" style={{ margin: 0 }}>{quote.deliveryMessage}</p> : null}
               <div className="sk-total"><dt>Total</dt><dd>{money(quote.total)}</dd></div>
             </dl>
+            <FreeDeliveryProgress quote={quote} />
           </>
         ) : <div className="sk-skeleton" style={{ height: 120 }} aria-busy="true" />}
         <button type="submit" className="sk-button sk-button-block" style={{ marginTop: 16 }} disabled={submitting || status !== 'ready'}>

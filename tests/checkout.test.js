@@ -58,6 +58,13 @@ describe('order body', () => {
     expect(orderBody({ lines, address, paymentMethod: 'UPI_MANUAL', expectedTotal: 1, couponCode: 'SAVE10' })).toMatchObject({ paymentMethod: 'UPI_MANUAL', couponCode: 'SAVE10' });
   });
 
+  it('names the chosen delivery method, and never carries a delivery price', () => {
+    const body = orderBody({ lines, address, paymentMethod: 'COD', deliveryMethodId: 'express001', expectedTotal: 1, deliveryFee: 0 });
+    expect(body.deliveryMethodId).toBe('express001');
+    expect(body).not.toHaveProperty('deliveryFee');
+    expect(orderBody({ lines, address, paymentMethod: 'COD', expectedTotal: 1 })).not.toHaveProperty('deliveryMethodId');
+  });
+
   it('has no business, store or price field to tamper with', () => {
     const body = orderBody({ lines, address, paymentMethod: 'COD', expectedTotal: 1 });
     expect(Object.keys(body).sort()).toEqual(['address', 'expectedTotal', 'lines', 'paymentMethod']);
