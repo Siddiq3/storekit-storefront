@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from './CartProvider.jsx';
 import { readCoupon, useQuote } from './useQuote.js';
-import { emptyAddress, validateAddress, orderBody, idempotencyKeyFor, clearIdempotencyKey, saveUpi, saveAddress, loadAddress, clearAddress, PAYMENT_LABELS } from '@/lib/checkout.js';
+import {
+  emptyAddress, validateAddress, orderBody, idempotencyKeyFor, clearIdempotencyKey, saveUpi, saveAddress, loadAddress, clearAddress, PAYMENT_LABELS,
+  deliveryAfterQuote, deliveryAfterOrderError, pricedDeliveryOption,
+} from '@/lib/checkout.js';
 import { postJson } from '@/lib/client-api.js';
 import { toQuoteLines } from '@/lib/cart.js';
 import { money } from '@/lib/money.js';
@@ -60,12 +63,14 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
 
   // A method that has gone since the page loaded: the quote fell back to the main one; follow it and say so.
   useEffect(() => {
-    if (quote?.deliveryMethodUnavailable) {
-      setDeliveryMethodId(quote.deliveryMethodId);
-      setNotice('That delivery option is no longer available, so we picked another. Please check it below.');
+    const fallback = deliveryAfterQuote(quote);
+    if (fallback) {
+      setDeliveryMethodId(fallback.methodId);
+      setNotice(fallback.notice);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quote?.deliveryMethodUnavailable, quote?.deliveryMethodId]);
-  const selectedDelivery = quote?.deliveryOptions?.find((o) => o.id === quote.deliveryMethodId);
+  const selectedDelivery = pricedDeliveryOption(quote);
 
   useEffect(() => { if (failure) alertRef.current?.focus(); }, [failure]);
 
@@ -115,10 +120,11 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
     }
 
     setSubmitting(false);
-    if (result.code === 'DELIVERY_METHOD_UNAVAILABLE') {
-      setDeliveryMethodId('');
+    const methodGone = deliveryAfterOrderError(result);
+    if (methodGone) {
+      setDeliveryMethodId(methodGone.methodId);
       refresh();
-      setNotice('That delivery option is no longer available. Please choose another and place your order again.');
+      setNotice(methodGone.notice);
       return;
     }
     if (result.code === 'TOTAL_MISMATCH') {

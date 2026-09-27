@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { toQuoteLines } from '@/lib/cart.js';
 import { postJson } from '@/lib/client-api.js';
+import { quoteBody, quoteSignature } from '@/lib/checkout.js';
 
 /**
  * The server's quote for the cart: every price, discount, fee and total a shopper sees comes from here. Re-run
@@ -11,7 +12,7 @@ import { postJson } from '@/lib/client-api.js';
  */
 export function useQuote({ lines, ready, couponCode, pincode, paymentMethod, deliveryMethodId }) {
   const [state, setState] = useState({ status: 'idle', quote: null, error: null });
-  const signature = JSON.stringify([toQuoteLines(lines), couponCode || null, pincode || null, paymentMethod || null, deliveryMethodId || null]);
+  const signature = quoteSignature({ lines: toQuoteLines(lines), couponCode, pincode, paymentMethod, deliveryMethodId });
   const [refreshes, setRefreshes] = useState(0);
 
   useEffect(() => {
@@ -21,13 +22,7 @@ export function useQuote({ lines, ready, couponCode, pincode, paymentMethod, del
     let current = true;
     setState((s) => ({ ...s, status: 'loading', error: null }));
     const timer = setTimeout(async () => {
-      const result = await postJson('/api/quote', {
-        lines: toQuoteLines(lines),
-        ...(couponCode ? { couponCode } : {}),
-        ...(/^[1-9]\d{5}$/.test(pincode ?? '') ? { pincode } : {}),
-        ...(paymentMethod ? { paymentMethod } : {}),
-        ...(deliveryMethodId ? { deliveryMethodId } : {}),
-      });
+      const result = await postJson('/api/quote', quoteBody({ lines: toQuoteLines(lines), couponCode, pincode, paymentMethod, deliveryMethodId }));
       if (!current) return;
       setState(result.ok
         ? { status: 'ready', quote: result.data, error: null }
