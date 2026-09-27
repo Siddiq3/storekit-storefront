@@ -25,7 +25,7 @@ export function Header({ store, categories = [] }) {
           </details>
 
           <Link href="/" className="sk-brand" prefetch={false}>
-            {store.logoUrl ? <img src={store.logoUrl} alt={store.name} height="36" /> : <span>{store.name}</span>}
+            {store.logoUrl ? <img src={store.logoUrl} alt={store.name} height="44" /> : <span>{store.name}</span>}
           </Link>
 
           <div className="sk-header-actions">
