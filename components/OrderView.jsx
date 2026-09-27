@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { whatsappLink } from '@storekit/shared';
 import { UpiPanel } from './UpiPanel.jsx';
 import { money } from '@/lib/money.js';
 import { PAYMENT_LABELS } from '@/lib/checkout.js';
@@ -94,7 +95,7 @@ export function OrderView({ order, token, placed }) {
           <h2 id="sk-store-h">{order.storeName}</h2>
           <p style={{ margin: 0 }}>
             {order.storePhone ? <>Call <a href={`tel:${String(order.storePhone).replace(/\D/g, '')}`}>{order.storePhone}</a><br /></> : null}
-            {order.storeWhatsapp ? <a href={`https://wa.me/${String(order.storeWhatsapp).replace(/\D/g, '')}`} rel="noopener noreferrer" target="_blank">Message on WhatsApp</a> : null}
+            {order.storeWhatsapp ? <a href={whatsappLink(order.storeWhatsapp)} rel="noopener noreferrer" target="_blank">Message on WhatsApp</a> : null}
           </p>
         </section>
 

@@ -42,7 +42,7 @@ export function Header({ store, categories = [] }) {
       </div>
 
       <nav className="sk-nav" aria-label="Categories">
-        <NavLinks links={[{ href: '/', label: 'Home' }, ...top.map((c) => ({ href: categoryPath(c), label: c.name }))]} />
+        <NavLinks links={[{ href: '/', label: 'Home' }, { href: '/products', label: 'All products' }, ...top.map((c) => ({ href: categoryPath(c), label: c.name }))]} />
       </nav>
     </header>
   );

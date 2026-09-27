@@ -237,7 +237,7 @@ describe('order confirmation', () => {
   it('shows the order number, items, total, payment method, delivery summary and the store', async () => {
     data.order = { ...order, orderId: 'INTERNAL-ORDER-ID' };
     const out = await html(OrderSuccess({ searchParams: Promise.resolve({ t: TOKEN }) }));
-    for (const text of ['ORD-000042', 'Brake Pad', '× 2', '₹2,648', 'Cash on delivery', 'Asha Rao', 'MG Road', '560038', 'Asha Boutique', 'wa.me/9876543210']) expect(out, text).toContain(text);
+    for (const text of ['ORD-000042', 'Brake Pad', '× 2', '₹2,648', 'Cash on delivery', 'Asha Rao', 'MG Road', '560038', 'Asha Boutique', 'wa.me/919876543210']) expect(out, text).toContain(text);
   });
 
   it('never shows the internal order id', async () => {

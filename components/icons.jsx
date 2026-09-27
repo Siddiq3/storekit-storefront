@@ -9,3 +9,6 @@ export const CashIcon = () => <svg {...base} width="26" height="26"><rect x="3" 
 export const TruckIcon = () => <svg {...base} width="26" height="26"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7" /><circle cx="7" cy="18" r="1.6" /><circle cx="17" cy="18" r="1.6" /></svg>;
 export const ShieldIcon = () => <svg {...base} width="26" height="26"><path d="M12 3 5 6v5c0 4.500 3 8 7 10 4-2 7-5.500 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg>;
 export const ArrowIcon = () => <svg {...base} width="14" height="14"><path d="m9 6 6 6-6 6" /></svg>;
+export const PhoneIcon = () => <svg {...base} width="16" height="16"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" /></svg>;
+export const ChatIcon = () => <svg {...base} width="16" height="16"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12Z" /></svg>;
+export const MailIcon = () => <svg {...base} width="16" height="16"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>;

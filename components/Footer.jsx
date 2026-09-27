@@ -1,49 +1,76 @@
 import Link from 'next/link';
+import { whatsappLink } from '@storekit/shared';
 import { loadConfig } from '@/lib/config.js';
 import { categoryPath, safeHttpsUrl } from '@/lib/urls.js';
+import { ChatIcon, MailIcon, PhoneIcon, PinIcon } from './icons.jsx';
 
 const digits = (value) => String(value ?? '').replace(/\D/g, '');
 const SOCIAL_LABELS = { instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube', twitter: 'X', x: 'X', website: 'Website' };
 
+/**
+ * Brand, then three labelled columns — Shop (where to go), Help (the store's policies) and Contact (how to reach
+ * the owner) — so a customer finds a phone number under "Contact", not between two policies.
+ */
 export function Footer({ store, categories = [] }) {
   const { contact = {}, social = {} } = store;
-  const whatsapp = digits(contact.whatsapp);
+  const phone = digits(contact.phone);
+  const whatsapp = whatsappLink(contact.whatsapp);
   const socials = Object.entries(social).map(([key, value]) => [key, safeHttpsUrl(value)]).filter(([, url]) => url);
-  const address = [contact.addressLine, contact.city, contact.state].filter(Boolean).join(', ');
+  const address = [contact.addressLine, contact.city, contact.state, contact.pincode].filter(Boolean).join(', ');
   const branding = store.showBranding ? loadConfig().rootUrl : null;
-  const top = categories.filter((c) => !c.parentId).slice(0, 8);
+  const top = categories.filter((c) => !c.parentId).slice(0, 6);
   const pages = store.pages ?? [];
+  const about = store.footerText || store.description;
+  const hasContact = phone || whatsapp || contact.email || address;
 
   return (
     <footer className="sk-footer">
       <div className="sk-container">
         <div className="sk-footer-grid">
           <div className="sk-footer-brand">
-            {store.logoUrl ? <img src={store.logoUrl} alt={store.name} height="34" /> : <div>{store.name}</div>}
-            {store.footerText ? <p style={{ fontWeight: 400, fontSize: '0.8125rem', color: 'var(--sk-muted)' }}>{store.footerText}</p> : null}
+            <Link href="/" prefetch={false} className="sk-footer-logo">
+              {store.logoUrl ? <img src={store.logoUrl} alt={store.name} height="40" /> : <span>{store.name}</span>}
+            </Link>
+            {about ? <p>{about}</p> : null}
+            {socials.length ? (
+              <ul className="sk-footer-social">
+                {socials.map(([key, url]) => <li key={key}><a href={url} rel="noopener noreferrer nofollow" target="_blank">{SOCIAL_LABELS[key] ?? key}</a></li>)}
+              </ul>
+            ) : null}
           </div>
 
-          {top.length ? (
-            <div>
-              <h2>Categories</h2>
-              <ul>{top.map((c) => <li key={c.categoryId}><Link href={categoryPath(c)} prefetch={false}>{c.name}</Link></li>)}</ul>
-            </div>
+          <nav aria-labelledby="ft-shop">
+            <h2 id="ft-shop">Shop</h2>
+            <ul>
+              <li><Link href="/products" prefetch={false}>All products</Link></li>
+              {top.map((c) => <li key={c.categoryId}><Link href={categoryPath(c)} prefetch={false}>{c.name}</Link></li>)}
+              <li><Link href="/track" prefetch={false}>Track order</Link></li>
+              <li><Link href="/cart" prefetch={false}>Cart</Link></li>
+            </ul>
+          </nav>
+
+          {pages.length ? (
+            <nav aria-labelledby="ft-help">
+              <h2 id="ft-help">Help</h2>
+              <ul>{pages.map((p) => <li key={p.slug}><Link href={`/pages/${p.slug}`} prefetch={false}>{p.title}</Link></li>)}</ul>
+            </nav>
           ) : null}
 
-          <div>
-            <h2>Support</h2>
-            <ul>
-              {pages.map((p) => <li key={p.slug}><Link href={`/pages/${p.slug}`} prefetch={false}>{p.title}</Link></li>)}
-              <li><Link href="/track" prefetch={false}>Track order</Link></li>
-              {contact.phone ? <li><a href={`tel:${digits(contact.phone)}`}>{contact.phone}</a></li> : null}
-              {whatsapp ? <li><a href={`https://wa.me/${whatsapp}`} rel="noopener noreferrer" target="_blank">WhatsApp</a></li> : null}
-              {contact.email ? <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li> : null}
-              {socials.map(([key, url]) => <li key={key}><a href={url} rel="noopener noreferrer nofollow" target="_blank">{SOCIAL_LABELS[key] ?? key}</a></li>)}
-            </ul>
-            {address ? <p>{address}</p> : null}
-          </div>
+          {hasContact ? (
+            <div className="sk-footer-contact">
+              <h2>Contact</h2>
+              <ul>
+                {phone ? <li><a href={`tel:${phone}`}><PhoneIcon /> {contact.phone}</a></li> : null}
+                {whatsapp ? <li><a href={whatsapp} rel="noopener noreferrer" target="_blank"><ChatIcon /> Chat on WhatsApp</a></li> : null}
+                {contact.email ? <li><a href={`mailto:${contact.email}`}><MailIcon /> {contact.email}</a></li> : null}
+                {address ? <li><span><PinIcon /> {address}</span></li> : null}
+              </ul>
+            </div>
+          ) : null}
         </div>
-        <div className="sk-copyright">
+      </div>
+      <div className="sk-copyright">
+        <div className="sk-container">
           <span>© {new Date().getFullYear()} {store.name}. All Rights Reserved.</span>
           {branding ? <span>Powered by <a href={branding} rel="noopener">StoreKit</a></span> : null}
         </div>
