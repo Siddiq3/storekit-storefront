@@ -43,12 +43,16 @@ export default async function Home() {
 
   return (
     <>
+      {/* The shop introducing itself: its name, its own words, and one way in — beside its own banner when it has
+          one. A tint of its colour, not a poster. */}
+      <div className="sk-intro" data-banner={store.banners.some((b) => b.imageUrl) ? '' : undefined}>
       <div className="sk-hero">
         <h1>{store.name}</h1>
         {store.description ? <p>{store.description}</p> : null}
+        <Link className="sk-button sk-hero-cta" href="/products" prefetch={false}>Shop all products <ArrowIcon /></Link>
       </div>
-
       <Banners banners={store.banners} />
+      </div>
 
       {store.orderingPaused ? (
         <p className="sk-notice" role="status" style={{ marginTop: 24 }}>{store.orderingPausedMessage || 'This shop is not taking orders right now. You can still look around.'}</p>
@@ -56,7 +60,7 @@ export default async function Home() {
 
       {categories.length ? (
         <section className="sk-section" aria-labelledby="sec-categories">
-          <div className="sk-section-head"><h2 id="sec-categories">Featured Categories</h2></div>
+          <div className="sk-section-head"><h2 id="sec-categories">Shop by category</h2></div>
           <CategoryCards categories={categories} />
         </section>
       ) : null}
@@ -64,14 +68,14 @@ export default async function Home() {
       {sections.map((section) => (
         <section className="sk-section" key={`${section.type}-${section.sortOrder}`} aria-labelledby={`sec-${section.type}`}>
           <SectionHead id={`sec-${section.type}`} title={section.title} />
-          <ProductGrid products={section.products} layout={store.theme.layout} label={section.title} storeName={store.name} />
+          <ProductGrid products={section.products} layout={store.theme.layout} label={section.title} />
         </section>
       ))}
 
       {sections.length === 0 && latest.length > 0 ? (
         <section className="sk-section" aria-labelledby="sec-latest">
           <SectionHead id="sec-latest" title="Featured Products" />
-          <ProductGrid products={latest} layout={store.theme.layout} label="Featured Products" storeName={store.name} />
+          <ProductGrid products={latest} layout={store.theme.layout} label="Featured Products" />
         </section>
       ) : null}
 

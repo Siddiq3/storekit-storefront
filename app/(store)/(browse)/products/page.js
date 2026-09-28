@@ -32,7 +32,7 @@ export default async function Products({ searchParams }) {
   return (
     <>
       <div className="sk-toolbar"><h1>All products</h1><SortForm sort={sort} /></div>
-      {page.items.length === 0 ? <EmptyProducts /> : <ProductGrid products={page.items} layout={store.theme.layout} storeName={store.name} label="All products" />}
+      {page.items.length === 0 ? <EmptyProducts /> : <ProductGrid products={page.items} layout={store.theme.layout} label="All products" />}
       <Pager pathname="/products" params={{ sort: sort === 'newest' ? '' : sort }} nextCursor={page.nextCursor} />
     </>
   );

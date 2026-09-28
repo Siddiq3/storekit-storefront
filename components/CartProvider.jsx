@@ -46,6 +46,9 @@ export function CartProvider({ children }) {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
+/** The cart, or null outside a store page (a card rendered on its own, as in a test). */
+export const useOptionalCart = () => useContext(CartContext);
+
 export const useCart = () => {
   const ctx = useContext(CartContext);
   if (!ctx) throw new Error('useCart must be used inside <CartProvider>');

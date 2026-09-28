@@ -52,7 +52,7 @@ export default async function CategoryPage({ params, searchParams }) {
       <div className="sk-toolbar"><h1>{category.name}</h1><SortForm sort={sort} /></div>
       {page.items.length === 0
         ? <EmptyProducts message="Nothing in this category yet." />
-        : <ProductGrid products={page.items} layout={store.theme.layout} storeName={store.name} label={category.name} />}
+        : <ProductGrid products={page.items} layout={store.theme.layout} label={category.name} />}
       <Pager pathname={categoryPath(category)} params={{ sort: sort === 'newest' ? '' : sort }} nextCursor={page.nextCursor} />
       <script
         type="application/ld+json"

@@ -8,6 +8,7 @@ import { lineKey } from '@/lib/cart.js';
 import { money } from '@/lib/money.js';
 import { productPath } from '@/lib/urls.js';
 import { FreeDeliveryProgress } from './DeliveryOptions.jsx';
+import { NoPhotoIcon } from './icons.jsx';
 
 const ISSUES = {
   unavailable: () => 'This item is no longer available. Remove it to continue.',
@@ -61,7 +62,7 @@ export function CartView({ orderingPaused, pausedMessage }) {
             const issue = p?.issue ? ISSUES[p.issue]?.(p) ?? 'Please review this item.' : null;
             return (
               <li className="sk-line" key={key}>
-                {(p?.imageUrl ?? line.imageUrl) ? <img src={p?.imageUrl ?? line.imageUrl} alt="" width="72" height="72" loading="lazy" /> : <div className="sk-skeleton" style={{ width: 72, height: 72 }} />}
+                {(p?.imageUrl ?? line.imageUrl) ? <img src={p?.imageUrl ?? line.imageUrl} alt="" width="72" height="72" loading="lazy" /> : <span className="sk-line-photo sk-no-photo"><NoPhotoIcon /></span>}
                 <div>
                   <Link className="sk-line-name" href={productPath({ productId: line.productId, slug: line.slug })} prefetch={false}>{p?.name ?? line.name}</Link>
                   {(p?.variantLabel ?? line.variantLabel) ? <div className="sk-hint">{p?.variantLabel ?? line.variantLabel}</div> : null}

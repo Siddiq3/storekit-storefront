@@ -37,7 +37,7 @@ export default async function Search({ searchParams }) {
       <h1>Results for “{q}”</h1>
       {items.length === 0
         ? <EmptyProducts message={`Nothing matches “${q}”. Try a shorter or different word.`} />
-        : <ProductGrid products={items} layout={store.theme.layout} storeName={store.name} label="Search results" />}
+        : <ProductGrid products={items} layout={store.theme.layout} label="Search results" />}
     </>
   );
 }

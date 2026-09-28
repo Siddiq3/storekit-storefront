@@ -1,15 +1,20 @@
 import Link from 'next/link';
 import { money } from '@/lib/money.js';
 import { productPath } from '@/lib/urls.js';
+import { CardAddButton } from './CardAddButton.jsx';
 import { NoPhotoIcon } from './icons.jsx';
 
-/** "15% OFF" and "NEW!" / "SALE" badges, as the API reports them; a sold-out product shows no price. */
-export function ProductCard({ product, storeName }) {
+/**
+ * One product in a grid: the photo leads, then the name (two lines, never cut to "Handloom Cotto…"), the
+ * price with the MRP it is down from, and an Add button. Badges are the API's own ("15% off", "New!",
+ * "Sale"); a sold-out product shows no price, badge or button. The brand shows only when the owner set one.
+ */
+export function ProductCard({ product }) {
   const out = product.inStock === false;
   const off = product.discountPercent > 0 ? `${product.discountPercent}% off` : null;
   return (
-    <li>
-      <Link href={productPath(product)} className="sk-card" prefetch={false}>
+    <li className="sk-card">
+      <Link href={productPath(product)} className="sk-card-link" prefetch={false}>
         <div className="sk-card-media">
           {product.imageUrl
             ? <img src={product.imageUrl} alt={product.name} width="400" height="500" loading="lazy" decoding="async" />
@@ -22,8 +27,8 @@ export function ProductCard({ product, storeName }) {
           ) : null}
         </div>
         <div className="sk-card-body">
+          {product.brand ? <span className="sk-card-brand">{product.brand}</span> : null}
           <span className="sk-card-name">{product.name}</span>
-          {product.brand || storeName ? <span className="sk-card-brand">{product.brand || storeName}</span> : null}
           {out ? (
             <span className="sk-card-out">OUT OF STOCK</span>
           ) : (
@@ -34,6 +39,7 @@ export function ProductCard({ product, storeName }) {
           )}
         </div>
       </Link>
+      {out ? null : <div className="sk-card-actions"><CardAddButton product={product} /></div>}
     </li>
   );
 }

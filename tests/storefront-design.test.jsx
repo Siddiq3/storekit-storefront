@@ -62,9 +62,10 @@ describe('product cards', () => {
     expect(out).not.toContain('sk-badge');
   });
 
-  it('names the brand, or the shop when there is none', () => {
+  it('names the brand when the owner set one, and never repeats the store name on every card', () => {
     expect(render(card({ brand: 'Aurum' }), 'Asha')).toContain('Aurum');
-    expect(render(card(), 'Asha')).toContain('Asha');
+    expect(render(card(), 'Asha')).not.toContain('Asha');
+    expect(render(card())).not.toContain('sk-card-brand');
   });
 });
 
@@ -140,17 +141,17 @@ describe('header and footer', () => {
 });
 
 describe('home', () => {
-  it('shows Featured Categories when the store has them, and "View All" on a section', async () => {
+  it('shows its categories ("Shop by category") when the store has them, and "View All" on a section', async () => {
     data.home.categories = [{ categoryId: 'c1', name: 'Earrings', slug: 'earrings', parentId: null, productCount: 3 }];
     data.home.sections = [{ type: 'featured', title: 'Featured', sortOrder: 0, products: [card()] }];
     const out = await html(Home());
-    expect(out).toContain('Featured Categories');
+    expect(out).toContain('Shop by category');
     expect(out).toContain('/category/earrings');
     expect(out).toContain('View All');
   });
 
   it('has no categories section when there are none', async () => {
-    expect(await html(Home())).not.toContain('Featured Categories');
+    expect(await html(Home())).not.toContain('Shop by category');
   });
 });
 

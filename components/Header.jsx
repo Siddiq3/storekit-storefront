@@ -3,6 +3,7 @@ import { CartLink } from './CartLink.jsx';
 import { NavLinks } from './NavLinks.jsx';
 import { MenuIcon, PinIcon, SearchIcon } from './icons.jsx';
 import { categoryPath } from '@/lib/urls.js';
+import { ScrollWatch } from './ScrollWatch.jsx';
 
 /**
  * Menu and search on a phone; brand, search, "Track order" and cart, with the category row beneath, on a desktop.
@@ -12,6 +13,7 @@ export function Header({ store, categories = [] }) {
   const top = categories.filter((c) => !c.parentId).slice(0, 8);
   return (
     <header className="sk-header">
+      <ScrollWatch />
       <div className="sk-container">
         <div className="sk-header-row">
           <details className="sk-menu">

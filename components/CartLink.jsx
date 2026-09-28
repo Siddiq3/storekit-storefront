@@ -9,7 +9,8 @@ export function CartLink() {
   return (
     <Link href="/cart" className="sk-cart-link" prefetch={false} aria-label={`Cart, ${ready ? count : 0} items`}>
       <BagIcon />
-      {ready && count > 0 ? <span className="sk-cart-count" aria-hidden="true">{count}</span> : null}
+      {/* Keyed by the count, so a change replays the small pop that says "it went in". */}
+      {ready && count > 0 ? <span key={count} className="sk-cart-count" aria-hidden="true">{count}</span> : null}
     </Link>
   );
 }
