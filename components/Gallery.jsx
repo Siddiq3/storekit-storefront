@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { NoPhotoIcon } from './icons.jsx';
 
 export function Gallery({ images, name }) {
   const [index, setIndex] = useState(0);
   if (!images.length) {
-    return <div className="sk-gallery-main" role="img" aria-label={`${name}: no photo yet`} />;
+    return <div className="sk-gallery-main sk-no-photo" role="img" aria-label={`${name}: no photo yet`}><NoPhotoIcon /></div>;
   }
   const current = images[Math.min(index, images.length - 1)];
   return (

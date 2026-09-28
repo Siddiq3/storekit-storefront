@@ -12,3 +12,5 @@ export const ArrowIcon = () => <svg {...base} width="14" height="14"><path d="m9
 export const PhoneIcon = () => <svg {...base} width="16" height="16"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" /></svg>;
 export const ChatIcon = () => <svg {...base} width="16" height="16"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12Z" /></svg>;
 export const MailIcon = () => <svg {...base} width="16" height="16"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>;
+/** For a product with no photo yet: a quiet picture outline instead of an empty box. */
+export const NoPhotoIcon = () => <svg {...base} width="36" height="36" strokeWidth="1.3"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="m21 16-5-5-9 9" /></svg>;

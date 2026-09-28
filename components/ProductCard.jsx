@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { money } from '@/lib/money.js';
 import { productPath } from '@/lib/urls.js';
+import { NoPhotoIcon } from './icons.jsx';
 
 /** "15% OFF" and "NEW!" / "SALE" badges, as the API reports them; a sold-out product shows no price. */
 export function ProductCard({ product, storeName }) {
@@ -12,7 +13,7 @@ export function ProductCard({ product, storeName }) {
         <div className="sk-card-media">
           {product.imageUrl
             ? <img src={product.imageUrl} alt={product.name} width="400" height="500" loading="lazy" decoding="async" />
-            : null}
+            : <span className="sk-no-photo"><NoPhotoIcon /></span>}
           {!out && (off || product.isNew || product.onSale) ? (
             <div className="sk-badges">
               {off ? <span className="sk-badge">{off}</span> : product.onSale ? <span className="sk-badge">Sale</span> : null}
