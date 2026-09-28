@@ -6,6 +6,25 @@ import { postJson } from '@/lib/client-api.js';
 import { money } from '@/lib/money.js';
 
 /**
+ * Who to pay and how: the amount and UPI ID, the owner's own QR to scan when they uploaded one, and
+ * the payment link that opens a UPI app on a phone.
+ */
+export function UpiDetails({ upi }) {
+  return (
+    <div className="sk-upi">
+      <p style={{ margin: 0 }}>Pay <strong>{money(upi.amount)}</strong> to <strong className="sk-mono">{upi.upiId}</strong>{upi.payeeName ? ` (${upi.payeeName})` : ''}.</p>
+      {upi.qrImageUrl ? (
+        <figure style={{ margin: 0 }}>
+          <img src={upi.qrImageUrl} alt={`UPI QR code for ${upi.payeeName || upi.upiId}`} width="200" height="200" />
+          <figcaption className="sk-hint">Scan with any UPI app to pay.</figcaption>
+        </figure>
+      ) : null}
+      {upi.deepLink ? <a className="sk-button" href={upi.deepLink}>Open my UPI app</a> : null}
+    </div>
+  );
+}
+
+/**
  * Paying by UPI: the details the API returned when the order was placed (kept for this tab), then the payment
  * reference the shopper sends back. Only the tracking token identifies the order; the internal id stays server-side.
  */
@@ -32,13 +51,7 @@ export function UpiPanel({ token, awaiting, contact }) {
   return (
     <section className="sk-panel" aria-labelledby="sk-upi-h">
       <h2 id="sk-upi-h">Pay by UPI</h2>
-      {upi ? (
-        <div className="sk-upi">
-          <p style={{ margin: 0 }}>Pay <strong>{money(upi.amount)}</strong> to <strong className="sk-mono">{upi.upiId}</strong>{upi.payeeName ? ` (${upi.payeeName})` : ''}.</p>
-          {upi.qrImageUrl ? <img src={upi.qrImageUrl} alt="UPI QR code" width="200" height="200" /> : null}
-          {upi.deepLink ? <a className="sk-button" href={upi.deepLink}>Open my UPI app</a> : null}
-        </div>
-      ) : (
+      {upi ? <UpiDetails upi={upi} /> : (
         <p className="sk-hint">
           The shop's UPI details were shown when you placed the order.
           {contact ? ` If you need them again, contact the shop${contact.phone ? ` on ${contact.phone}` : ''}.` : ''}
