@@ -86,6 +86,7 @@ export const createOrderSchema = z
     expectedTotal: money,
     note: optionalProse(500, { label: 'Note' }),
     sessionId: sessionId.optional(),
+    instagramRef: z.string().regex(/^[A-Za-z0-9_-]{32}$/).optional(),
   })
   .strict();
 

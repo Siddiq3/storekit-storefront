@@ -1,4 +1,5 @@
 import { CartProvider } from '@/components/CartProvider.jsx';
+import { AttributionCapture } from '@/components/AttributionCapture.jsx';
 import { Footer } from '@/components/Footer.jsx';
 import { Header } from '@/components/Header.jsx';
 import { ValueStrip } from '@/components/ValueStrip.jsx';
@@ -31,6 +32,7 @@ export default async function StoreLayout({ children }) {
 
   return (
     <CartProvider>
+      <AttributionCapture />
       <div className="sk-root" style={themeVars(store.theme)}>
         {store.announcement ? <div className="sk-announcement" role="status">{store.announcement.text}</div> : null}
         <Header store={store} categories={categories} />
