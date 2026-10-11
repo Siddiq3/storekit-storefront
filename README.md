@@ -178,6 +178,9 @@ entitlement); this app never looks at a plan id.
 - Custom domains later: the storefront's origin becomes Cloudflare for SaaS's fallback origin and `domains.storekit.site`
   the CNAME target. No storefront change is needed.
 - Nothing is deployed yet. Do not enable wildcard DNS until the API's `EDGE_SHARED_SECRET` is set.
+- **Instagram attribution: deploy the API first.** Checkout sends an optional `instagramRef` with orders. An API older
+  than the Instagram V1 backend validates orders strictly and rejects that field, so shoppers arriving from an Instagram
+  link could not order. Release the backend, then this storefront (backend `docs/INSTAGRAM_V1.md`).
 
 ### Cloudflare Workers
 
