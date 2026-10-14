@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useCart } from './CartProvider.jsx';
 import { money } from '@/lib/money.js';
+import { ArrowIcon, BagIcon } from './icons.jsx';
 
 /** The variant whose attributes match every chosen option, or null while a choice is missing. */
 export const matchVariant = (product, chosen) => {
@@ -52,9 +53,10 @@ export function AddToCart({ product }) {
     <div>
       <p className="sk-product-price">
         <span className="sk-price">{money(price)}</span>
-        {mrp > price ? <span className="sk-mrp">{money(mrp)}</span> : null}
+        {mrp > price ? <span className="sk-mrp-label">MRP <span className="sk-mrp">{money(mrp)}</span></span> : null}
         {mrp > price ? <span className="sk-off">{Math.round((1 - price / mrp) * 100)}% off</span> : null}
       </p>
+      {mrp > price ? <p className="sk-save">You save {money(mrp - price)}</p> : null}
 
       {options.length ? (
         <div className="sk-options">
@@ -84,23 +86,25 @@ export function AddToCart({ product }) {
         {!purchasable ? 'Out of stock' : product.stockRemaining ? `Only ${product.stockRemaining} left` : product.stockLabel === 'backorder' ? 'Available on backorder' : 'In stock'}
       </p>
 
+      {/* On a phone this bar stays at the foot of the screen, with the price, while the shopper reads on. */}
       <div className="sk-buy">
+        <span className="sk-buy-price" aria-hidden="true"><strong>{money(price)}</strong>{mrp > price ? <span className="sk-mrp">{money(mrp)}</span> : null}</span>
         <div className="sk-qty" role="group" aria-label="Quantity">
-          <button type="button" aria-label="Decrease quantity" onClick={() => setQuantity((q) => Math.max(1, q - 1))}>−</button>
+          <button type="button" aria-label="Decrease quantity" onClick={() => { setQuantity((q) => Math.max(1, q - 1)); setAdded(false); }}>−</button>
           <output aria-live="polite">{quantity}</output>
-          <button type="button" aria-label="Increase quantity" onClick={() => setQuantity((q) => Math.min(99, q + 1))}>+</button>
+          <button type="button" aria-label="Increase quantity" onClick={() => { setQuantity((q) => Math.min(99, q + 1)); setAdded(false); }}>+</button>
         </div>
-        <button type="button" className="sk-button" onClick={add} disabled={!purchasable}>
-          {!purchasable ? 'Out of stock' : needsChoice ? 'Choose options' : 'Add to cart'}
-        </button>
+        {added ? (
+          <Link className="sk-button sk-button-done" href="/cart" prefetch={false}>Go to cart <ArrowIcon /></Link>
+        ) : (
+          <button type="button" className="sk-button" onClick={add} disabled={!purchasable}>
+            {purchasable && !needsChoice ? <BagIcon /> : null}
+            {!purchasable ? 'Out of stock' : needsChoice ? 'Choose options' : 'Add to cart'}
+          </button>
+        )}
       </div>
       {needsChoice && purchasable ? <p className="sk-hint" role="status">Choose {options.map((o) => o.name.toLowerCase()).join(' and ')} to add this to your cart.</p> : null}
-
-      {added ? (
-        <p className="sk-notice" role="status" style={{ marginTop: 16 }}>
-          Added to your cart. <Link href="/cart"><strong>View cart</strong></Link>
-        </p>
-      ) : null}
+      {added ? <p className="sk-added" role="status">Added to your cart.</p> : null}
     </div>
   );
 }

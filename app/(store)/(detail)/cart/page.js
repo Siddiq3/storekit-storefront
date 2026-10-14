@@ -8,5 +8,5 @@ export default async function CartPage() {
   const loaded = await loadStoreOrState();
   if (!loaded.ok) return null;
   const { store } = loaded;
-  return <CartView orderingPaused={store.orderingPaused} pausedMessage={store.orderingPausedMessage} />;
+  return <CartView orderingPaused={store.orderingPaused} pausedMessage={store.orderingPausedMessage} offers={store.offers} />;
 }

@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T16:38:40.554471Z",
+  "title": "Design System: StoreKit Storefront",
+  "extensions": {
+    "colorMeta": {
+      "shop-primary": {
+        "role": "primary",
+        "displayName": "Shop Primary",
+        "canonical": "var(--sk-primary)",
+        "tonalRamp": []
+      },
+      "saving-green": {
+        "role": "tertiary",
+        "displayName": "Saving Green",
+        "canonical": "#0a7d3e",
+        "tonalRamp": [
+          "#05351a",
+          "#064b25",
+          "#086232",
+          "#0a7d3e",
+          "#2f9a5e",
+          "#62b787",
+          "#9bd3b1",
+          "#d4eedd"
+        ]
+      },
+      "shop-tint": {
+        "role": "neutral",
+        "displayName": "Shop Tint",
+        "canonical": "color-mix(in srgb, var(--sk-primary) 6%, var(--sk-bg))",
+        "tonalRamp": []
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Store name in the hero band."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section heads, page titles, product name."
+      }
+    },
+    "shadows": [
+      {
+        "name": "raised",
+        "value": "0 12px 32px -14px color-mix(in srgb, var(--sk-text) 30%, transparent)",
+        "purpose": "Menu panel, carousel arrows."
+      },
+      {
+        "name": "bar",
+        "value": "0 -8px 24px -12px color-mix(in srgb, var(--sk-text) 28%, transparent)",
+        "purpose": "Phone buy and pay bars."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.2, 0.7, 0.2, 1)",
+        "purpose": "All state transitions, 150-250ms."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "640px"
+      },
+      {
+        "name": "desktop",
+        "value": "900px"
+      },
+      {
+        "name": "wide",
+        "value": "1200px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action on a page.",
+      "html": "<button class=\"ds-btn\">Add to cart</button>",
+      "css": ".ds-btn{min-height:46px;padding:12px 20px;border:1px solid var(--sk-button,#111827);border-radius:10px;background:var(--sk-button,#111827);color:var(--sk-button-text,#fff);font-weight:600;cursor:pointer;transition:filter .16s,transform .12s}.ds-btn:hover{filter:brightness(.93)}.ds-btn:active{transform:scale(.98)}.ds-btn:focus-visible{outline:2px solid var(--sk-primary,#111827);outline-offset:2px}"
+    },
+    {
+      "name": "Card Add",
+      "kind": "button",
+      "refersTo": "card-add",
+      "description": "Quiet outlined add on every product card.",
+      "html": "<button class=\"ds-add\">Add to cart</button>",
+      "css": ".ds-add{width:200px;min-height:40px;border:1px solid rgba(17,24,39,.18);border-radius:10px;background:#fff;font-size:.8125rem;font-weight:600;cursor:pointer}.ds-add:hover{border-color:var(--sk-primary,#111827);background:color-mix(in srgb,var(--sk-primary,#111827) 6%,#fff)}"
+    },
+    {
+      "name": "Price Row",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Price, struck MRP, green saving.",
+      "html": "<span class=\"ds-price\"><b>₹649</b> <s>₹999</s> <em>35% OFF</em></span>",
+      "css": ".ds-price{font-variant-numeric:tabular-nums}.ds-price s{color:rgba(17,24,39,.62);font-size:.8125rem}.ds-price em{font-style:normal;color:#0a7d3e;font-weight:700;font-size:.8125rem}"
+    },
+    {
+      "name": "Coupon Ticket",
+      "kind": "card",
+      "refersTo": "offer-stub",
+      "description": "Advertised coupon with a copyable code.",
+      "html": "<div class=\"ds-ticket\"><div class=\"ds-stub\">10% OFF</div><div class=\"ds-body\">Festive sale<br><button class=\"ds-code\">FESTIVE10</button></div></div>",
+      "css": ".ds-ticket{display:grid;grid-template-columns:96px 1fr;border:1px solid rgba(17,24,39,.15);border-radius:14px;overflow:hidden;width:300px}.ds-stub{background:var(--sk-primary,#111827);color:var(--sk-primary-text,#fff);padding:16px 14px;font-weight:600;font-size:1.375rem;border-right:2px dashed rgba(255,255,255,.45)}.ds-body{padding:14px;font-weight:600;font-size:.875rem}.ds-code{margin-top:8px;border:1px dashed currentColor;background:none;padding:8px 12px;letter-spacing:.08em;font-weight:700;cursor:pointer}"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Header search.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search products…\">",
+      "css": ".ds-input{min-height:44px;width:280px;padding:0 14px;border:1px solid transparent;border-radius:10px;background:rgba(17,24,39,.05)}.ds-input:focus{outline:none;border-color:var(--sk-primary,#111827);background:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--sk-primary,#111827) 11%,#fff)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Marketplace Standard, in the Shop's Own Colours",
+    "overview": "Myntra, Nykaa and Flipkart conventions rendered in each owner's colours, font, radius and layout. Phone-first; motion short and optional.",
+    "keyCharacteristics": [
+      "Owner primary carries every action",
+      "Savings are always green",
+      "No-photo products show their name on a tint",
+      "The one action is pinned to the phone's foot"
+    ],
+    "rules": [
+      {
+        "name": "The Green Saving Rule",
+        "body": "Discounts, You save, free delivery and applied coupons are always saving green.",
+        "section": "colors"
+      },
+      {
+        "name": "The Owner Colour Rule",
+        "body": "Never hard-code a brand colour; use --sk-* variables or color-mix from them.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Price Rule",
+        "body": "Every price, total and count uses tabular numerals.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do test every component against a dark, a light and a saturated owner primary, and with no logo, banners, photos or offers."
+    ],
+    "donts": [
+      "Don't invent ratings, reviews, sales counts or tax claims.",
+      "Don't let an entrance animation keep a transform after it ends."
+    ]
+  }
+}

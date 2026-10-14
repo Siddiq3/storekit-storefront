@@ -9,6 +9,9 @@ import { money } from '@/lib/money.js';
 import { productPath } from '@/lib/urls.js';
 import { FreeDeliveryProgress } from './DeliveryOptions.jsx';
 import { Initial } from './Initial.jsx';
+import { PriceDetails } from './PriceDetails.jsx';
+import { offerValue, offerTerms } from './Offers.jsx';
+import { BagIcon, TagIcon } from './icons.jsx';
 
 const ISSUES = {
   unavailable: () => 'This item is no longer available. Remove it to continue.',
@@ -16,7 +19,7 @@ const ISSUES = {
   insufficient_stock: (line) => `Only ${line.accepted} available.`,
 };
 
-export function CartView({ orderingPaused, pausedMessage }) {
+export function CartView({ orderingPaused, pausedMessage, offers = [] }) {
   const cart = useCart();
   const [coupon, setCoupon] = useState('');
   const [entered, setEntered] = useState('');
@@ -28,8 +31,10 @@ export function CartView({ orderingPaused, pausedMessage }) {
 
   if (cart.lines.length === 0) {
     return (
-      <div className="sk-empty" role="status">
-        <p>Your cart is empty.</p>
+      <div className="sk-empty sk-empty-cart" role="status">
+        <span className="sk-empty-icon"><BagIcon /></span>
+        <h1>Your cart is empty</h1>
+        <p>Add something you like and it will wait for you here.</p>
         <Link className="sk-button" href="/products">Start shopping</Link>
       </div>
     );
@@ -42,6 +47,7 @@ export function CartView({ orderingPaused, pausedMessage }) {
     writeCoupon(code);
   };
   const removeCoupon = () => { setCoupon(''); setEntered(''); writeCoupon(''); };
+  const applyOffer = (code) => { setEntered(code); setCoupon(code); writeCoupon(code); };
 
   const priced = new Map((quote?.lines ?? []).map((l) => [lineKey(l), l]));
   const problem = (quote?.lines ?? []).some((l) => l.issue);
@@ -50,7 +56,7 @@ export function CartView({ orderingPaused, pausedMessage }) {
   return (
     <div className="sk-two">
       <div>
-        <h1 style={{ marginBottom: 16 }}>Your cart</h1>
+        <h1 className="sk-page-title">Your cart <span>{cart.count} {cart.count === 1 ? 'item' : 'items'}</span></h1>
         {orderingPaused ? <p className="sk-notice" role="status">{pausedMessage || 'This shop is not taking orders right now.'}</p> : null}
         {status === 'error' ? (
           <p className="sk-alert" role="alert">{error?.message} <button type="button" className="sk-link-button" onClick={refresh}>Try again</button></p>
@@ -74,8 +80,8 @@ export function CartView({ orderingPaused, pausedMessage }) {
                       <output>{line.quantity}</output>
                       <button type="button" aria-label="Increase quantity" onClick={() => cart.setQuantity(key, line.quantity + 1)}>+</button>
                     </div>
-                    {p ? <strong>{money(p.lineTotal)}</strong> : null}
                     <button type="button" className="sk-link-button" onClick={() => cart.remove(key)}>Remove</button>
+                    {p ? <strong className="sk-line-total">{money(p.lineTotal)}</strong> : null}
                   </div>
                 </div>
               </li>
@@ -84,36 +90,42 @@ export function CartView({ orderingPaused, pausedMessage }) {
         </ul>
       </div>
 
-      <aside className="sk-panel" aria-label="Order summary">
-        <h2>Summary</h2>
-        <form onSubmit={applyCoupon} className="sk-field">
-          <label htmlFor="sk-coupon">Coupon code</label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input id="sk-coupon" value={entered} onChange={(e) => setEntered(e.target.value)} maxLength={30} autoCapitalize="characters" autoComplete="off" />
+      <aside className="sk-panel sk-summary" aria-label="Order summary">
+        <form onSubmit={applyCoupon} className="sk-field sk-coupon">
+          <label htmlFor="sk-coupon"><TagIcon /> Apply coupon</label>
+          <div className="sk-coupon-row">
+            <input id="sk-coupon" value={entered} onChange={(e) => setEntered(e.target.value)} maxLength={30} autoCapitalize="characters" autoComplete="off" placeholder="Enter code" />
             <button type="submit" className="sk-button sk-button-quiet">Apply</button>
           </div>
           {quote?.couponError?.message ? <span className="sk-error" role="alert">{quote.couponError.message}</span> : null}
         </form>
-        {quote?.coupon ? <p className="sk-hint">Coupon {quote.coupon.code} applied. <button type="button" className="sk-link-button" onClick={removeCoupon}>Remove</button></p> : null}
-
-        {quote ? (
-          <dl className="sk-totals" aria-live="polite">
-            <div><dt>Subtotal</dt><dd>{money(quote.subtotal)}</dd></div>
-            {quote.couponDiscount > 0 ? <div><dt>Coupon</dt><dd>−{money(quote.couponDiscount)}</dd></div> : null}
-            <div><dt>Delivery</dt><dd>{quote.deliveryFee > 0 ? money(quote.deliveryFee) : 'Free'}</dd></div>
-            {quote.deliveryOptions?.some((o) => o.dependsOnPincode) ? <p className="sk-hint" style={{ margin: 0 }}>Final delivery charge depends on your pincode.</p> : null}
-            {quote.deliveryEstimate ? <p className="sk-hint" style={{ margin: 0 }}>{quote.deliveryEstimate.label}</p> : null}
-            <div className="sk-total"><dt>Total</dt><dd>{money(quote.total)}</dd></div>
-            {quote.itemDiscount > 0 ? <p className="sk-off" style={{ margin: 0 }}>You save {money(quote.itemDiscount + quote.couponDiscount)}</p> : null}
-          </dl>
+        {quote?.coupon ? <p className="sk-coupon-applied" role="status"><strong>{quote.coupon.code}</strong> applied <button type="button" className="sk-link-button" onClick={removeCoupon}>Remove</button></p> : null}
+        {!quote?.coupon && offers.length ? (
+          <ul className="sk-coupon-offers" aria-label="Offers you can apply">
+            {offers.slice(0, 3).map((offer) => (
+              <li key={offer.code}>
+                <span><strong>{offer.code}</strong> {offerValue(offer)}<br /><span className="sk-hint">{offerTerms(offer)}</span></span>
+                <button type="button" className="sk-link-button sk-apply" onClick={() => applyOffer(offer.code)} aria-label={`Apply ${offer.code}`}>Apply</button>
+              </li>
+            ))}
+          </ul>
         ) : null}
-        {quote ? (
-          <FreeDeliveryProgress quote={quote} />
-        ) : <div className="sk-skeleton" style={{ height: 120 }} aria-busy="true" />}
 
-        {canCheckout
-          ? <Link className="sk-button sk-button-block" href="/checkout" style={{ marginTop: 16 }}>Checkout</Link>
-          : <button type="button" className="sk-button sk-button-block" style={{ marginTop: 16 }} disabled>Checkout</button>}
+        {quote ? (
+          <>
+            <PriceDetails quote={quote} count={cart.count} />
+            {quote.deliveryOptions?.some((o) => o.dependsOnPincode) ? <p className="sk-hint">Final delivery charge depends on your pincode.</p> : null}
+            {quote.deliveryEstimate ? <p className="sk-hint">{quote.deliveryEstimate.label}</p> : null}
+            <FreeDeliveryProgress quote={quote} />
+          </>
+        ) : <div className="sk-skeleton" style={{ height: 160 }} aria-busy="true" />}
+
+        <div className="sk-paybar">
+          {quote ? <span className="sk-paybar-total"><strong>{money(quote.total)}</strong><span>Total</span></span> : null}
+          {canCheckout
+            ? <Link className="sk-button sk-button-block" href="/checkout">Checkout</Link>
+            : <button type="button" className="sk-button sk-button-block" disabled>Checkout</button>}
+        </div>
       </aside>
     </div>
   );

@@ -4,12 +4,14 @@ import { AddToCart } from '@/components/AddToCart.jsx';
 import { BuyPerks } from '@/components/ValueStrip.jsx';
 import { ReturnsNote } from '@/components/ReturnsNote.jsx';
 import { Gallery } from '@/components/Gallery.jsx';
+import { OfferList } from '@/components/Offers.jsx';
+import { ProductGrid } from '@/components/ProductGrid.jsx';
 import { StateScreen } from '@/components/StateScreen.jsx';
 import { isApiError } from '@/lib/errors.js';
 import { loadStoreOrState } from '@/lib/load.js';
-import { getProduct } from '@/lib/store-data.js';
+import { getCategories, getProduct, listProducts } from '@/lib/store-data.js';
 import { breadcrumbLd, productLd, productMetadata, safeJsonLd } from '@/lib/seo.js';
-import { productPath } from '@/lib/urls.js';
+import { categoryPath, productPath } from '@/lib/urls.js';
 
 const NOT_FOUND_META = { title: 'Product not found', robots: { index: false, follow: false } };
 
@@ -53,10 +55,18 @@ export default async function ProductPage({ params, searchParams }) {
   }
 
   const images = product.images ?? [];
+  // More from the same category (or the newest in the shop), never this product again. Optional: a failure shows none.
+  const categories = await getCategories(ctx.slug, ctx).catch(() => []);
+  const category = categories.find((c) => c.categoryId === product.categoryId);
+  const others = (query) => listProducts(ctx.slug, ctx, { ...query, limit: 9 })
+    .then((page) => page.items.filter((p) => p.productId !== product.productId).slice(0, 8))
+    .catch(() => []);
+  const inCategory = category ? await others({ category: category.slug }) : [];
+  const related = inCategory.length ? inCategory : await others({ sort: 'newest' });
 
   return (
     <>
-      <nav className="sk-breadcrumb" aria-label="Breadcrumb"><Link href="/" prefetch={false}>{store.name}</Link> / <Link href="/products" prefetch={false}>Products</Link> / {product.name}</nav>
+      <nav className="sk-breadcrumb" aria-label="Breadcrumb"><Link href="/" prefetch={false}>{store.name}</Link> / {category ? <Link href={categoryPath(category)} prefetch={false}>{category.name}</Link> : <Link href="/products" prefetch={false}>Products</Link>} / <span aria-current="page">{product.name}</span></nav>
       {store.orderingPaused ? <p className="sk-notice" role="status">{store.orderingPausedMessage || 'This shop is not taking orders right now.'}</p> : null}
       <article className="sk-product">
         <Gallery images={images} name={product.name} />
@@ -82,12 +92,27 @@ export default async function ProductPage({ params, searchParams }) {
               variants: product.variants ?? [],
             }}
           />
-          <ReturnsNote returns={store.returns} policy={store.policies.find((p) => p.type === 'refund')} />
-          {product.inStock === false ? null : <BuyPerks store={store} />}
-          {product.summary ? <p>{product.summary}</p> : null}
-          {product.description ? <div className="sk-desc">{product.description}</div> : null}
+          {product.inStock === false ? null : <OfferList offers={store.offers} />}
+          <section className="sk-services" aria-labelledby="sk-h-services">
+            <h2 id="sk-h-services">Delivery &amp; services</h2>
+            {product.inStock === false ? null : <BuyPerks store={store} />}
+            <ReturnsNote returns={store.returns} policy={store.policies.find((p) => p.type === 'refund')} />
+          </section>
+          {product.summary || product.description ? (
+            <section className="sk-details" aria-labelledby="sk-h-details">
+              <h2 id="sk-h-details">Product details</h2>
+              {product.summary ? <p>{product.summary}</p> : null}
+              {product.description ? <div className="sk-desc">{product.description}</div> : null}
+            </section>
+          ) : null}
         </div>
       </article>
+      {related.length ? (
+        <section className="sk-section" aria-labelledby="sk-h-related">
+          <div className="sk-section-head"><h2 id="sk-h-related">{inCategory.length ? `More in ${category.name}` : 'You may also like'}</h2></div>
+          <ProductGrid products={related} layout={store.theme.layout} label="Similar products" rail />
+        </section>
+      ) : null}
       <script
         type="application/ld+json"
          
