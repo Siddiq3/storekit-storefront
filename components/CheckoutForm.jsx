@@ -13,6 +13,8 @@ import {
 import { postJson } from '@/lib/client-api.js';
 import { toQuoteLines } from '@/lib/cart.js';
 import { money } from '@/lib/money.js';
+import { AddressLocationFields } from './AddressLocationFields.jsx';
+import { changeAddressField, restoreLocation } from '@/lib/address-locations.js';
 import { DeliveryOptions, FreeDeliveryProgress, deliveryPrice } from './DeliveryOptions.jsx';
 
 const FIELD_LABELS = {
@@ -55,7 +57,7 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
   // A returning shopper finds their details already filled in (kept on this device only; there is no account).
   useEffect(() => {
     const saved = loadAddress();
-    if (saved) { setValues((v) => ({ ...v, ...saved, instructions: v.instructions })); setRestored(true); }
+    if (saved) { setValues((v) => ({ ...v, ...restoreLocation(saved), instructions: v.instructions })); setRestored(true); }
   }, []);
 
   const { status, quote, refresh } = useQuote({
@@ -75,7 +77,10 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
 
   useEffect(() => { if (failure) alertRef.current?.focus(); }, [failure]);
 
-  const change = (name, value) => { setValues((v) => ({ ...v, [name]: value })); setErrors((e) => ({ ...e, [name]: undefined })); };
+  const change = (name, value) => {
+    setValues((v) => changeAddressField(v, name, value));
+    setErrors((e) => ({ ...e, [name]: undefined, ...(name === 'state' ? { district: undefined } : {}) }));
+  };
 
   if (!cart.ready) return <div className="sk-skeleton" style={{ height: 200 }} aria-busy="true" aria-label="Loading" />;
   if (cart.lines.length === 0) {
@@ -166,12 +171,9 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
           </div>
           <div className="sk-form-row">
             <Field name="city" values={values} errors={errors} onChange={change} />
-            <Field name="district" values={values} errors={errors} onChange={change} />
-          </div>
-          <div className="sk-form-row">
-            <Field name="state" values={values} errors={errors} onChange={change} />
             <Field name="pincode" values={values} errors={errors} onChange={change} inputMode="numeric" maxLength={6} />
           </div>
+          <AddressLocationFields values={values} errors={errors} onChange={change} />
           <div className="sk-field">
             <label htmlFor="sk-instructions">Delivery instructions (optional)</label>
             <textarea id="sk-instructions" rows={2} maxLength={300} value={values.instructions} onChange={(e) => change('instructions', e.target.value)} />
