@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useOptionalCart } from './CartProvider.jsx';
 import { productPath } from '@/lib/urls.js';
+import { BagIcon, CheckIcon } from './icons.jsx';
 
 /**
  * The card's own action. A simple product goes straight into the cart, and the button says so for a
@@ -40,7 +41,8 @@ export function CardAddButton({ product }) {
 
   return (
     <button type="button" className="sk-card-add" data-added={added || undefined} onClick={add} aria-label={`Add ${product.name} to cart`}>
-      <span aria-live="polite">{added ? 'Added ✓' : 'Add to cart'}</span>
+      {added ? <CheckIcon /> : <BagIcon />}
+      <span aria-live="polite">{added ? 'Added' : 'Add to cart'}</span>
     </button>
   );
 }

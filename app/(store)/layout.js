@@ -3,7 +3,6 @@ import { CartProvider } from '@/components/CartProvider.jsx';
 import { AttributionCapture } from '@/components/AttributionCapture.jsx';
 import { Footer } from '@/components/Footer.jsx';
 import { Header } from '@/components/Header.jsx';
-import { ValueStrip } from '@/components/ValueStrip.jsx';
 import { StateScreen } from '@/components/StateScreen.jsx';
 import { getCategories } from '@/lib/store-data.js';
 import { themeVars } from '@/lib/theme.js';
@@ -39,7 +38,6 @@ export default async function StoreLayout({ children }) {
           {store.announcement ? <div className="sk-announcement" role="status">{store.announcement.text}</div> : null}
           <Header store={store} categories={categories} />
           <main className="sk-main"><div className="sk-container sk-page">{children}</div></main>
-          <div className="sk-container"><ValueStrip store={store} /></div>
           <Footer store={store} categories={categories} />
           <script
             type="application/ld+json"

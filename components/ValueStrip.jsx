@@ -1,7 +1,8 @@
 'use client';
 
 import { useAvailablePaymentMethods } from './PaymentAvailability.jsx';
-import { CashIcon, ShieldIcon, TruckIcon } from './icons.jsx';
+import { CashIcon, ReturnIcon, ShieldIcon, TruckIcon } from './icons.jsx';
+import { returnsLabel } from '@/lib/returns.js';
 import { money } from '@/lib/money.js';
 
 /**
@@ -25,15 +26,7 @@ export function ValueStrip({ store }) {
       <div className="sk-value" data-unavailable={!cod || undefined}><span className="sk-value-icon"><CashIcon /></span><strong>Cash On Delivery</strong><span>{cod ? 'You can choose to pay after you receive your order.' : 'Currently not accepted by this store.'}</span></div>
       {shipping ? <div className="sk-value"><span className="sk-value-icon"><TruckIcon /></span><strong>{shipping.title}</strong><span>{shipping.text}</span></div> : null}
       {upi ? <div className="sk-value"><span className="sk-value-icon"><ShieldIcon /></span><strong>Pay by UPI</strong><span>Pay with any UPI app, then share your payment reference.</span></div> : null}
-      {cod || upi ? (
-        <div className="sk-accept">
-          <strong>We accept:</strong>
-          <div className="sk-chips">
-            {cod ? <span className="sk-chip-pay">CASH ON DELIVERY</span> : null}
-            {upi ? <span className="sk-chip-pay">UPI</span> : null}
-          </div>
-        </div>
-      ) : null}
+      {store.returns?.allowed ? <div className="sk-value"><span className="sk-value-icon"><ReturnIcon /></span><strong>Easy Returns</strong><span>{returnsLabel(store.returns)}.</span></div> : null}
     </section>
   );
 }

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Initial } from './Initial.jsx';
+import { NamePlate } from './Initial.jsx';
 
 export function Gallery({ images, name }) {
   const [index, setIndex] = useState(0);
   if (!images.length) {
-    return <div className="sk-gallery-main sk-no-photo" role="img" aria-label={`${name}: no photo yet`}><Initial name={name} /></div>;
+    return <div className="sk-gallery-main sk-no-photo" role="img" aria-label={`${name}: no photo yet`}><NamePlate name={name} /></div>;
   }
   const current = images[Math.min(index, images.length - 1)];
   return (

@@ -144,13 +144,13 @@ describe('header and footer', () => {
 });
 
 describe('home', () => {
-  it('shows its categories ("Shop by category") when the store has them, and "View All" on a section', async () => {
+  it('shows its categories ("Shop by category") when the store has them, and "View all" on a section', async () => {
     data.home.categories = [{ categoryId: 'c1', name: 'Earrings', slug: 'earrings', parentId: null, productCount: 3 }];
     data.home.sections = [{ type: 'featured', title: 'Featured', sortOrder: 0, products: [card()] }];
     const out = await html(Home());
     expect(out).toContain('Shop by category');
     expect(out).toContain('/category/earrings');
-    expect(out).toContain('View All');
+    expect(out).toContain('View all');
   });
 
   it('has no categories section when there are none', async () => {

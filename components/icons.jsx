@@ -12,4 +12,9 @@ export const ArrowIcon = () => <svg {...base} width="14" height="14"><path d="m9
 export const PhoneIcon = () => <svg {...base} width="16" height="16"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" /></svg>;
 export const ChatIcon = () => <svg {...base} width="16" height="16"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12Z" /></svg>;
 export const MailIcon = () => <svg {...base} width="16" height="16"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>;
-/** For a product with no photo yet: a quiet picture outline instead of an empty box. */
+export const CheckIcon = () => <svg {...base} width="16" height="16" strokeWidth="2.2"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>;
+export const ChevronLeftIcon = () => <svg {...base} width="18" height="18"><path d="m15 6-6 6 6 6" /></svg>;
+export const ChevronRightIcon = () => <svg {...base} width="18" height="18"><path d="m9 6 6 6-6 6" /></svg>;
+export const TagIcon = () => <svg {...base} width="18" height="18"><path d="M3 12V4h8l10 10-8 8L3 12Z" /><circle cx="7.5" cy="8.5" r="1.4" /></svg>;
+export const ReturnIcon = () => <svg {...base} width="26" height="26"><path d="M4 9h11a5 5 0 0 1 0 10H9" /><path d="m8 5-4 4 4 4" /></svg>;
+export const CopyIcon = () => <svg {...base} width="16" height="16"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a1 1 0 0 1 1-1h9" /></svg>;

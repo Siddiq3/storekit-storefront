@@ -16,7 +16,9 @@ import { money } from '@/lib/money.js';
 import { useAvailablePaymentMethods } from './PaymentAvailability.jsx';
 import { AddressLocationFields } from './AddressLocationFields.jsx';
 import { changeAddressField, restoreLocation } from '@/lib/address-locations.js';
-import { DeliveryOptions, FreeDeliveryProgress, deliveryPrice } from './DeliveryOptions.jsx';
+import { DeliveryOptions, FreeDeliveryProgress } from './DeliveryOptions.jsx';
+import { PriceDetails } from './PriceDetails.jsx';
+import { CashIcon, ShieldIcon } from './icons.jsx';
 
 const FIELD_LABELS = {
   fullName: ['Full name', 'name'], mobile: ['Mobile number', 'tel'], houseNo: ['House / flat number', 'address-line1'],
@@ -154,7 +156,7 @@ export function CheckoutForm({ paymentMethods: initialPaymentMethods, orderingPa
   return (
     <form onSubmit={submit} noValidate className="sk-two" aria-labelledby="sk-checkout-title">
       <div>
-        <h1 id="sk-checkout-title" style={{ marginBottom: 16 }}>Checkout</h1>
+        <h1 id="sk-checkout-title" className="sk-page-title">Checkout</h1>
         {failure ? <p className="sk-alert" role="alert" tabIndex={-1} ref={alertRef}>{failure.message}</p> : null}
         {notice ? <p className="sk-notice" role="status">{notice}</p> : null}
 
@@ -205,42 +207,38 @@ export function CheckoutForm({ paymentMethods: initialPaymentMethods, orderingPa
           {paymentMethods.map((m) => (
             <label className="sk-radio" key={m}>
               <input type="radio" name="paymentMethod" value={m} checked={method === m} onChange={() => setMethod(m)} />
+              <span className="sk-pay-icon" aria-hidden="true">{m === 'COD' ? <CashIcon /> : <ShieldIcon />}</span>
               <span><strong>{PAYMENT_LABELS[m]?.title ?? m}</strong><br /><span className="sk-hint">{PAYMENT_LABELS[m]?.hint}</span></span>
             </label>
           ))}
         </fieldset>
       </div>
 
-      <aside className="sk-panel" aria-label="Order summary">
+      <aside className="sk-panel sk-summary" aria-label="Order summary">
         <h2>Your order</h2>
         {quote ? (
           <>
-            <ul className="sk-lines" style={{ marginBottom: 12 }}>
+            <ul className="sk-summary-lines">
               {quote.lines.map((l) => (
-                <li key={`${l.productId}:${l.variantId ?? ''}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                  <span>{l.name}{l.variantLabel ? ` (${l.variantLabel})` : ''} × {l.accepted ?? l.requested}</span>
+                <li key={`${l.productId}:${l.variantId ?? ''}`}>
+                  <span>{l.name}{l.variantLabel ? ` (${l.variantLabel})` : ''} <span className="sk-hint">× {l.accepted ?? l.requested}</span></span>
                   <span>{money(l.lineTotal)}</span>
                 </li>
               ))}
             </ul>
-            <dl className="sk-totals" aria-live="polite">
-              <div><dt>Subtotal</dt><dd>{money(quote.subtotal)}</dd></div>
-              {quote.couponDiscount > 0 ? <div><dt>Coupon</dt><dd>−{money(quote.couponDiscount)}</dd></div> : null}
-              <div>
-                <dt>{selectedDelivery ? selectedDelivery.name : 'Delivery'}</dt>
-                <dd>{selectedDelivery ? deliveryPrice(selectedDelivery) : quote.deliveryFee > 0 ? money(quote.deliveryFee) : 'Free'}</dd>
-              </div>
-              {quote.deliveryEstimate ? <p className="sk-hint" style={{ margin: 0 }}>{quote.deliveryEstimate.label}</p> : null}
-              {quote.deliverable === false ? <p className="sk-error" style={{ margin: 0 }}>{quote.deliveryMessage}</p> : null}
-              <div className="sk-total"><dt>Total</dt><dd>{money(quote.total)}</dd></div>
-            </dl>
+            <PriceDetails quote={quote} count={quote.lines.reduce((n, l) => n + (l.accepted ?? l.requested ?? 0), 0)} delivery={selectedDelivery} />
+            {quote.deliveryEstimate ? <p className="sk-hint">{quote.deliveryEstimate.label}</p> : null}
+            {quote.deliverable === false ? <p className="sk-error">{quote.deliveryMessage}</p> : null}
             <FreeDeliveryProgress quote={quote} />
           </>
-        ) : <div className="sk-skeleton" style={{ height: 120 }} aria-busy="true" />}
-        <button type="submit" className="sk-button sk-button-block" style={{ marginTop: 16 }} disabled={submitting || status !== 'ready'}>
-          {submitting ? 'Placing your order…' : 'Place order'}
-        </button>
-        <p className="sk-hint" style={{ textAlign: 'center' }}><Link href="/cart">Back to cart</Link></p>
+        ) : <div className="sk-skeleton" style={{ height: 160 }} aria-busy="true" />}
+        <div className="sk-paybar">
+          {quote ? <span className="sk-paybar-total"><strong>{money(quote.total)}</strong><span>{method === 'COD' ? 'Pay on delivery' : 'Total'}</span></span> : null}
+          <button type="submit" className="sk-button sk-button-block" disabled={submitting || status !== 'ready'}>
+            {submitting ? 'Placing your order…' : 'Place order'}
+          </button>
+        </div>
+        <p className="sk-hint sk-back"><Link href="/cart">Back to cart</Link></p>
       </aside>
     </form>
   );
