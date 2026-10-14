@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { whatsappLink } from '@storekit/shared';
 import { UpiPanel } from './UpiPanel.jsx';
-import { NoPhotoIcon } from './icons.jsx';
+import { Initial } from './Initial.jsx';
 import { money } from '@/lib/money.js';
 import { PAYMENT_LABELS } from '@/lib/checkout.js';
 
@@ -62,7 +62,7 @@ export function OrderView({ order, token, placed }) {
           <ul className="sk-lines">
             {order.items.map((item, i) => (
               <li className="sk-line" key={`${item.name}-${i}`}>
-                {item.imageUrl ? <img src={item.imageUrl} alt="" width="72" height="72" loading="lazy" /> : <span className="sk-line-photo sk-no-photo"><NoPhotoIcon /></span>}
+                {item.imageUrl ? <img src={item.imageUrl} alt="" width="72" height="72" loading="lazy" /> : <span className="sk-line-photo sk-no-photo"><Initial name={item.name} /></span>}
                 <div>
                   <div className="sk-line-name">{item.name}</div>
                   {item.variantLabel ? <div className="sk-hint">{item.variantLabel}</div> : null}

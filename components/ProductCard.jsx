@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { money } from '@/lib/money.js';
 import { productPath } from '@/lib/urls.js';
 import { CardAddButton } from './CardAddButton.jsx';
-import { NoPhotoIcon } from './icons.jsx';
+import { Initial } from './Initial.jsx';
 
 /**
  * One product in a grid: the photo leads, then the name (two lines, never cut to "Handloom Cotto…"), the
@@ -18,7 +18,7 @@ export function ProductCard({ product }) {
         <div className="sk-card-media">
           {product.imageUrl
             ? <img src={product.imageUrl} alt={product.name} width="400" height="500" loading="lazy" decoding="async" />
-            : <span className="sk-no-photo"><NoPhotoIcon /></span>}
+            : <span className="sk-no-photo"><Initial name={product.name} /></span>}
           {!out && (off || product.isNew || product.onSale) ? (
             <div className="sk-badges">
               {off ? <span className="sk-badge">{off}</span> : product.onSale ? <span className="sk-badge">Sale</span> : null}

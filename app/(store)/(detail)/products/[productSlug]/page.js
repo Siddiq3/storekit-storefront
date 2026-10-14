@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { AddToCart } from '@/components/AddToCart.jsx';
+import { BuyPerks } from '@/components/ValueStrip.jsx';
 import { ReturnsNote } from '@/components/ReturnsNote.jsx';
 import { Gallery } from '@/components/Gallery.jsx';
 import { StateScreen } from '@/components/StateScreen.jsx';
@@ -82,6 +83,7 @@ export default async function ProductPage({ params, searchParams }) {
             }}
           />
           <ReturnsNote returns={store.returns} policy={store.policies.find((p) => p.type === 'refund')} />
+          {product.inStock === false ? null : <BuyPerks store={store} />}
           {product.summary ? <p>{product.summary}</p> : null}
           {product.description ? <div className="sk-desc">{product.description}</div> : null}
         </div>

@@ -34,3 +34,25 @@ export function ValueStrip({ store }) {
     </section>
   );
 }
+
+/**
+ * The same facts, short, beside the buy button on a product page: what paying and delivery will be like, before the
+ * shopper has to scroll to the strip at the foot of the page. Only what the store has actually turned on.
+ */
+export function BuyPerks({ store }) {
+  const cod = store.paymentMethods.includes('COD');
+  const upi = store.paymentMethods.includes('UPI_MANUAL');
+  const { freeDeliveryAlways, freeDeliveryAbove } = store.delivery ?? {};
+  const items = [
+    freeDeliveryAlways ? { icon: <TruckIcon />, text: 'Free delivery on every order' }
+      : freeDeliveryAbove > 0 ? { icon: <TruckIcon />, text: `Free delivery on orders of ${money(freeDeliveryAbove)} or more` } : null,
+    cod ? { icon: <CashIcon />, text: 'Cash on delivery available' } : null,
+    upi ? { icon: <ShieldIcon />, text: 'Pay with any UPI app' } : null,
+  ].filter(Boolean);
+  if (!items.length) return null;
+  return (
+    <ul className="sk-perks" aria-label="Delivery and payment">
+      {items.map((item) => <li key={item.text}><span className="sk-perk-icon">{item.icon}</span>{item.text}</li>)}
+    </ul>
+  );
+}
