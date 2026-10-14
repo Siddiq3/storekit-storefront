@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Offers } from '@/components/Offers.jsx';
 import { Banners } from '@/components/Banners.jsx';
 import { CategoryCards } from '@/components/CategoryCards.jsx';
 import { ArrowIcon } from '@/components/icons.jsx';
@@ -58,6 +59,8 @@ export default async function Home() {
         <p className="sk-notice" role="status" style={{ marginTop: 24 }}>{store.orderingPausedMessage || 'This shop is not taking orders right now. You can still look around.'}</p>
       ) : null}
 
+      <Offers offers={store.offers} />
+
       {categories.length ? (
         <section className="sk-section" aria-labelledby="sec-categories">
           <div className="sk-section-head"><h2 id="sec-categories">Shop by category</h2></div>
@@ -66,7 +69,7 @@ export default async function Home() {
       ) : null}
 
       {sections.map((section) => (
-        <section className="sk-section" key={`${section.type}-${section.sortOrder}`} aria-labelledby={`sec-${section.type}`}>
+        <section className="sk-section" data-section={section.type} key={`${section.type}-${section.sortOrder}`} aria-labelledby={`sec-${section.type}`}>
           <SectionHead id={`sec-${section.type}`} title={section.title} />
           <ProductGrid products={section.products} layout={store.theme.layout} label={section.title} />
         </section>

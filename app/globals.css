@@ -436,3 +436,37 @@ html[data-scrolled] .sk-header { box-shadow: 0 6px 18px -10px rgba(17, 24, 39, 0
   .sk-modal { margin: auto; width: min(720px, calc(100vw - 48px)); border-radius: 16px; max-height: 84vh; }
   .sk-modal-body { padding: 36px 40px 40px; max-height: 84vh; }
 }
+
+/* Owner merchandising: native scrolling, visible controls, and restrained entrance motion. */
+.sk-carousel { min-width: 0; position: relative; }
+.sk-banners { position: relative; }
+.sk-banner a { display: block; height: 100%; }
+.sk-carousel-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; }
+.sk-carousel-controls button { width: 44px; height: 44px; border: 1px solid var(--sk-line); border-radius: var(--sk-r-control); background: var(--sk-bg); cursor: pointer; }
+.sk-carousel-controls button:disabled { opacity: .35; cursor: default; }
+.sk-carousel-dots { display: flex; flex-wrap: wrap; justify-content: center; }
+.sk-carousel-dots button { border: 0; display: grid; place-items: center; width: 30px; }
+.sk-carousel-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--sk-muted); transition: transform .2s var(--sk-ease); }
+.sk-carousel-dots [aria-current] span { background: var(--sk-primary); transform: scale(1.5); }
+.sk-offer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+.sk-offer { padding: 24px; border: 1px solid var(--sk-line); border-radius: var(--sk-r-card); background: var(--sk-tint); display: flex; flex-direction: column; align-items: flex-start; }
+.sk-offer-eyebrow { color: var(--sk-accent-ink); text-transform: uppercase; font-size: .6875rem; font-weight: 600; letter-spacing: .1em; margin-bottom: 10px; }
+.sk-offer h3 { font-family: var(--sk-display); font-size: 1.75rem; }
+.sk-offer p { margin: 12px 0 0; overflow-wrap: anywhere; }
+.sk-offer-terms { display: grid; gap: 4px; color: var(--sk-muted); font-size: .8125rem; margin: 12px 0 20px; }
+.sk-offer-code { margin-top: auto; width: 100%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 12px; border: 1px dashed var(--sk-accent-ink); border-radius: var(--sk-r-control); background: var(--sk-bg); cursor: pointer; }
+.sk-offer-code strong { letter-spacing: .08em; overflow-wrap: anywhere; }
+.sk-offer-code span { font-size: .75rem; color: var(--sk-muted); }
+.sk-offer-feedback { min-height: 1.5em; margin-bottom: 0; }
+.sk-section[data-section="sale"] { padding: 24px; background: var(--sk-tint); border-radius: var(--sk-r-card); }
+.sk-intro { animation: sk-enter .35s var(--sk-ease); }
+.sk-announcement { line-height: 1.6; overflow-wrap: anywhere; }
+@media (min-width: 1024px) {
+  .sk-intro[data-banner] .sk-carousel { display: flex; flex-direction: column; height: clamp(320px, 32vw, 480px); }
+  .sk-intro[data-banner] .sk-carousel-controls { flex: none; }
+  .sk-intro[data-banner] .sk-banners { flex: 1; min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk-intro { animation: none; }
+  .sk-carousel-dots span { transition: none; }
+}

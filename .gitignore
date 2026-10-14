@@ -21,3 +21,6 @@ coverage/
 .open-next/
 .wrangler/
 .dev.vars*
+
+# Local merchandising preview fixtures
+public/qa-assets/
