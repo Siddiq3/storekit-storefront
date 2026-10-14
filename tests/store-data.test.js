@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { clearStoreCache, cacheKey, getProduct, getStore, listProducts, lookupOrder, quoteCart, toPublicOrder, toStore } from '@/lib/store-data.js';
+import { clearStoreCache, cacheKey, getProduct, getStore, getSettings, listProducts, lookupOrder, quoteCart, toPublicOrder, toStore } from '@/lib/store-data.js';
 import { fail, mockApi, ok, rawProduct, rawStore, ULID } from './helpers.js';
 
 const ctx = { ip: '203.0.113.7' };
@@ -55,13 +55,26 @@ describe('store data', () => {
     expect(calls[0].url.pathname).toBe('/v1/public/stores/asha/search');
   });
 
-  it('caches public reads briefly, but never an error', async () => {
+  it('re-reads store configuration after changes, and never caches an error', async () => {
     let n = 0;
     const calls = mockApi({ 'GET /public/stores/asha': () => (n++ === 0 ? fail(503, 'X') : ok(rawStore())) });
     await expect(getStore('asha', ctx)).rejects.toMatchObject({ unavailable: true });
     expect((await getStore('asha', ctx)).name).toBe('Asha Boutique');
     await getStore('asha', ctx);
-    expect(calls).toHaveLength(2);
+    expect(calls).toHaveLength(3);
+  });
+
+  it('payment availability changes are reflected without waiting for a cache timeout', async () => {
+    let cod = true;
+    mockApi({
+      'GET /public/stores/asha': () => ok(rawStore({ paymentMethods: cod ? ['COD', 'UPI_MANUAL'] : ['UPI_MANUAL'] })),
+      'GET /public/stores/asha/settings': () => ok({ paymentMethods: cod ? ['COD', 'UPI_MANUAL'] : ['UPI_MANUAL'] }),
+    });
+    expect((await getStore('asha', ctx)).paymentMethods).toContain('COD');
+    expect((await getSettings('asha', ctx)).paymentMethods).toContain('COD');
+    cod = false;
+    expect((await getStore('asha', ctx)).paymentMethods).toEqual(['UPI_MANUAL']);
+    expect((await getSettings('asha', ctx)).paymentMethods).toEqual(['UPI_MANUAL']);
   });
 
   it('refuses a slug that is not a slug before it can become part of a URL', async () => {

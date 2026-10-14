@@ -310,6 +310,7 @@ html[data-scrolled] .sk-header { box-shadow: 0 6px 18px -10px rgba(17, 24, 39, 0
 /* ───────────── Trust strip ───────────── */
 .sk-values { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 16px; padding: 28px 20px; margin-top: 24px; text-align: center; background: var(--sk-tint); border-radius: var(--sk-r-card); }
 .sk-value { display: grid; gap: 6px; justify-items: center; align-content: start; }
+.sk-value[data-unavailable] .sk-value-icon { color: var(--sk-muted); }
 .sk-value-icon { color: var(--sk-accent-ink); margin-bottom: 4px; }
 .sk-value strong { font-size: 0.9375rem; font-weight: 600; }
 .sk-value span { font-size: 0.8125rem; color: var(--sk-muted); max-width: 30ch; }

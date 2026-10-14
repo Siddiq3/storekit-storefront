@@ -13,6 +13,7 @@ import {
 import { postJson } from '@/lib/client-api.js';
 import { toQuoteLines } from '@/lib/cart.js';
 import { money } from '@/lib/money.js';
+import { useAvailablePaymentMethods } from './PaymentAvailability.jsx';
 import { AddressLocationFields } from './AddressLocationFields.jsx';
 import { changeAddressField, restoreLocation } from '@/lib/address-locations.js';
 import { DeliveryOptions, FreeDeliveryProgress, deliveryPrice } from './DeliveryOptions.jsx';
@@ -36,12 +37,14 @@ function Field({ name, values, errors, onChange, inputMode, maxLength }) {
   );
 }
 
-export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) {
+export function CheckoutForm({ paymentMethods: initialPaymentMethods, orderingPaused, pausedMessage }) {
+  const paymentMethods = useAvailablePaymentMethods(initialPaymentMethods);
   const router = useRouter();
   const cart = useCart();
   const [values, setValues] = useState(emptyAddress());
   const [errors, setErrors] = useState({});
-  const [method, setMethod] = useState(paymentMethods[0] ?? '');
+  const [chosenMethod, setMethod] = useState(paymentMethods[0] ?? '');
+  const method = paymentMethods.includes(chosenMethod) ? chosenMethod : (paymentMethods[0] ?? '');
   const [coupon, setCoupon] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [failure, setFailure] = useState(null);

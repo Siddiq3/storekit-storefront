@@ -88,10 +88,11 @@ describe('category cards', () => {
 describe('the value strip only claims what the checkout can do', () => {
   const strip = (over) => renderToStaticMarkup(<ValueStrip store={toStore(rawStore(over))} />);
 
-  it('cash on delivery only when COD is on, UPI only when UPI is on', () => {
+  it('marks COD unavailable when off, and advertises UPI only when on', () => {
     expect(strip({ paymentMethods: ['COD'] })).toContain('Cash On Delivery');
     expect(strip({ paymentMethods: ['COD'] })).not.toContain('UPI');
-    expect(strip({ paymentMethods: ['UPI_MANUAL'] })).not.toContain('Cash On Delivery');
+    expect(strip({ paymentMethods: ['UPI_MANUAL'] })).toContain('Currently not accepted by this store.');
+    expect(strip({ paymentMethods: ['UPI_MANUAL'] })).not.toContain('pay after you receive your order');
     expect(strip({ paymentMethods: ['UPI_MANUAL'] })).toContain('UPI');
   });
 
@@ -103,7 +104,9 @@ describe('the value strip only claims what the checkout can do', () => {
   it('free shipping follows the delivery rule, with the real threshold', () => {
     expect(strip({ delivery: { methods: [], freeDeliveryAbove: 50000, freeDeliveryAlways: false } })).toContain('₹500 or more');
     expect(strip({ delivery: { methods: [], freeDeliveryAbove: 0, freeDeliveryAlways: true } })).toContain('Free delivery on every order');
-    expect(strip({ delivery: { methods: [], freeDeliveryAbove: 0, freeDeliveryAlways: false }, paymentMethods: [] })).toBe('');
+    const unavailable = strip({ delivery: { methods: [], freeDeliveryAbove: 0, freeDeliveryAlways: false }, paymentMethods: [] });
+    expect(unavailable).toContain('Currently not accepted by this store.');
+    expect(unavailable).not.toContain('Free Shipping');
   });
 });
 

@@ -1,14 +1,18 @@
+'use client';
+
+import { useAvailablePaymentMethods } from './PaymentAvailability.jsx';
 import { CashIcon, ShieldIcon, TruckIcon } from './icons.jsx';
 import { money } from '@/lib/money.js';
 
 /**
- * What the shop actually offers, drawn from the store's own settings: cash on delivery only if it is on, free
+ * What the shop actually offers, drawn from the store's own settings: cash on delivery marked unavailable when off, free
  * delivery only if the delivery rule says so, and only the payment methods that exist (COD and UPI). Nothing is claimed
  * that the checkout cannot do.
  */
 export function ValueStrip({ store }) {
-  const cod = store.paymentMethods.includes('COD');
-  const upi = store.paymentMethods.includes('UPI_MANUAL');
+  const methods = useAvailablePaymentMethods(store.paymentMethods);
+  const cod = methods.includes('COD');
+  const upi = methods.includes('UPI_MANUAL');
   const { freeDeliveryAlways, freeDeliveryAbove } = store.delivery ?? {};
   const shipping = freeDeliveryAlways
     ? { title: 'Free Shipping', text: 'Free delivery on every order.' }
@@ -16,10 +20,9 @@ export function ValueStrip({ store }) {
       ? { title: 'Free Shipping', text: `Free delivery on orders of ${money(freeDeliveryAbove)} or more.` }
       : null;
 
-  if (!cod && !upi && !shipping) return null;
   return (
     <section className="sk-values" aria-label="Shopping with us">
-      {cod ? <div className="sk-value"><span className="sk-value-icon"><CashIcon /></span><strong>Cash On Delivery</strong><span>You can choose to pay after you receive your order.</span></div> : null}
+      <div className="sk-value" data-unavailable={!cod || undefined}><span className="sk-value-icon"><CashIcon /></span><strong>Cash On Delivery</strong><span>{cod ? 'You can choose to pay after you receive your order.' : 'Currently not accepted by this store.'}</span></div>
       {shipping ? <div className="sk-value"><span className="sk-value-icon"><TruckIcon /></span><strong>{shipping.title}</strong><span>{shipping.text}</span></div> : null}
       {upi ? <div className="sk-value"><span className="sk-value-icon"><ShieldIcon /></span><strong>Pay by UPI</strong><span>Pay with any UPI app, then share your payment reference.</span></div> : null}
       {cod || upi ? (
@@ -37,16 +40,17 @@ export function ValueStrip({ store }) {
 
 /**
  * The same facts, short, beside the buy button on a product page: what paying and delivery will be like, before the
- * shopper has to scroll to the strip at the foot of the page. Only what the store has actually turned on.
+ * shopper has to scroll to the strip at the foot of the page. Unavailable COD is explicit; enabled methods remain the only ones advertised as accepted.
  */
 export function BuyPerks({ store }) {
-  const cod = store.paymentMethods.includes('COD');
-  const upi = store.paymentMethods.includes('UPI_MANUAL');
+  const methods = useAvailablePaymentMethods(store.paymentMethods);
+  const cod = methods.includes('COD');
+  const upi = methods.includes('UPI_MANUAL');
   const { freeDeliveryAlways, freeDeliveryAbove } = store.delivery ?? {};
   const items = [
     freeDeliveryAlways ? { icon: <TruckIcon />, text: 'Free delivery on every order' }
       : freeDeliveryAbove > 0 ? { icon: <TruckIcon />, text: `Free delivery on orders of ${money(freeDeliveryAbove)} or more` } : null,
-    cod ? { icon: <CashIcon />, text: 'Cash on delivery available' } : null,
+    { icon: <CashIcon />, text: cod ? 'Cash on delivery available' : 'Cash on delivery is currently not accepted' },
     upi ? { icon: <ShieldIcon />, text: 'Pay with any UPI app' } : null,
   ].filter(Boolean);
   if (!items.length) return null;
