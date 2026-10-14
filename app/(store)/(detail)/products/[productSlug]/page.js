@@ -23,7 +23,7 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function ProductPage({ params }) {
+export default async function ProductPage({ params, searchParams }) {
   const loaded = await loadStoreOrState();
   if (!loaded.ok) return null;
   const { store, ctx, canonicalHost } = loaded;
@@ -44,7 +44,12 @@ export default async function ProductPage({ params }) {
   const canonical = productPath(product);
   let decoded;
   try { decoded = decodeURIComponent(param); } catch { notFound(); }
-  if (decoded !== canonical.replace('/products/', '')) permanentRedirect(canonical);
+  if (decoded !== canonical.replace('/products/', '')) {
+    // Preserve only the opaque attribution reference across canonical product redirects.
+    const ref = (await searchParams)?.sk_ig;
+    const suffix = typeof ref === 'string' && /^[A-Za-z0-9_-]{32}$/.test(ref) ? '?sk_ig=' + encodeURIComponent(ref) : '';
+    permanentRedirect(canonical + suffix);
+  }
 
   const images = product.images ?? [];
 

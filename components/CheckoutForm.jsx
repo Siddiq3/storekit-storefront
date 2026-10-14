@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from './CartProvider.jsx';
+import { readInstagramRef } from '@/lib/instagram-attribution.js';
 import { readCoupon, useQuote } from './useQuote.js';
 import {
   emptyAddress, validateAddress, orderBody, idempotencyKeyFor, clearIdempotencyKey, saveUpi, saveAddress, loadAddress, clearAddress, PAYMENT_LABELS,
@@ -105,6 +106,7 @@ export function CheckoutForm({ paymentMethods, orderingPaused, pausedMessage }) 
     const body = orderBody({
       lines: toQuoteLines(cart.lines), address: checked.address, couponCode: coupon, paymentMethod: method,
       deliveryMethodId: quote.deliveryMethodId, expectedTotal: quote.total,
+      instagramRef: readInstagramRef(),
     });
     setSubmitting(true);
     const result = await postJson('/api/orders', body, { 'x-idempotency-key': idempotencyKeyFor(body) });

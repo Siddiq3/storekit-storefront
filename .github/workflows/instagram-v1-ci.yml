@@ -1,0 +1,27 @@
+name: Instagram V1 branch verification
+on:
+  push:
+    branches: [feat/instagram-account-connection]
+permissions:
+  contents: read
+concurrency:
+  group: instagram-v1-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Storefront tests
+        run: npm test
+      - name: Shared packages in sync
+        run: npm run sync:check
+      - name: Production Next.js build
+        run: npm run build
