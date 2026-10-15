@@ -164,6 +164,7 @@ html[data-scrolled] .sk-header { box-shadow: 0 6px 18px -12px color-mix(in srgb,
 .sk-banner a:hover img { transform: scale(1.02); }
 .sk-carousel-controls { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 6px; }
 .sk-carousel-arrow { display: none; }
+.sk-carousel-playback { border: 0; background: none; color: var(--sk-text); font: inherit; font-size: 12px; min-height: 32px; padding: 4px 8px; cursor: pointer; }
 .sk-carousel-dots { display: flex; flex-wrap: wrap; justify-content: center; }
 .sk-carousel-dots button { border: 0; background: none; display: grid; place-items: center; width: 24px; height: 28px; padding: 0; cursor: pointer; }
 .sk-carousel-dots span { width: 7px; height: 7px; border-radius: 999px; background: color-mix(in srgb, var(--sk-text) 22%, transparent); transition: transform 0.25s var(--sk-ease), background-color 0.2s var(--sk-ease); }
