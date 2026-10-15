@@ -2,7 +2,7 @@ name: Deploy storefront preview (workers.dev, temporary)
 
 # TEMPORARY real-user testing before the production domain exists. Deploys the separate Worker
 # storekit-storefront-preview (wrangler.jsonc, env "preview") to its workers.dev address only, serving the one store
-# named by `store_slug`. Manual only; `dry_run` (on by default) stops before uploading. Production is untouched.
+# named by `store_slug`. Manual only; ticking `dry_run` stops before uploading. Production is untouched.
 on:
   workflow_dispatch:
     inputs:
@@ -13,7 +13,7 @@ on:
       dry_run:
         description: 'Build and check only; do not upload to Cloudflare'
         type: boolean
-        default: true
+        default: false
 
 concurrency:
   group: deploy-storefront-preview

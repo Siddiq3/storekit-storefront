@@ -1,14 +1,14 @@
 name: Deploy storefront (Cloudflare Workers)
 
-# Manual only: nothing deploys on push. Run it from the Actions tab. `dry_run` (on by default) builds, tests and
-# checks everything, then stops before uploading; turn it off to deploy.
+# Manual only: nothing deploys on push. Run it from the Actions tab and it deploys. Tick `dry_run` to build, test and
+# check everything, then stop before uploading.
 on:
   workflow_dispatch:
     inputs:
       dry_run:
         description: 'Build and check only; do not upload to Cloudflare'
         type: boolean
-        default: true
+        default: false
 
 # Never two deploys at once, and never cancel one halfway.
 concurrency:
