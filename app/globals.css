@@ -153,7 +153,7 @@ html[data-scrolled] .sk-header { box-shadow: 0 6px 18px -12px color-mix(in srgb,
 .sk-hero[data-photos="1"] .sk-hero-photos { grid-template-columns: minmax(0, 1fr); max-width: 260px; }
 .sk-hero[data-photos="2"] .sk-hero-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-/* The owner's banners: one at a time on a phone, two side by side on a wide screen. Native swipe; dots and arrows. */
+/* The owner's banners: one at a time, full width, on every screen. Native swipe; dots and arrows. */
 .sk-carousel { position: relative; min-width: 0; }
 .sk-banners { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
 .sk-banners::-webkit-scrollbar { display: none; }
@@ -164,7 +164,6 @@ html[data-scrolled] .sk-header { box-shadow: 0 6px 18px -12px color-mix(in srgb,
 .sk-banner a:hover img { transform: scale(1.02); }
 .sk-carousel-controls { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 6px; }
 .sk-carousel-arrow { display: none; }
-.sk-carousel-playback { border: 0; background: none; color: var(--sk-text); font: inherit; font-size: 12px; min-height: 32px; padding: 4px 8px; cursor: pointer; }
 .sk-carousel-dots { display: flex; flex-wrap: wrap; justify-content: center; }
 .sk-carousel-dots button { border: 0; background: none; display: grid; place-items: center; width: 24px; height: 28px; padding: 0; cursor: pointer; }
 .sk-carousel-dots span { width: 7px; height: 7px; border-radius: 999px; background: color-mix(in srgb, var(--sk-text) 22%, transparent); transition: transform 0.25s var(--sk-ease), background-color 0.2s var(--sk-ease); }
@@ -569,9 +568,8 @@ html[data-scrolled] .sk-header { box-shadow: 0 6px 18px -12px color-mix(in srgb,
   .sk-cats { grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); }
   .sk-hero { padding: 56px; min-height: 420px; }
   .sk-hero-photos { gap: 14px; }
-  /* Two banners side by side on a wide screen, the way the big stores run their campaign rails. */
-  .sk-banners:has(.sk-banner:nth-child(2)) .sk-banner { flex-basis: calc(50% - 6px); }
-  .sk-banner:only-child img { aspect-ratio: 16 / 7; }
+  /* One banner across the full width, a little shorter than on a phone so the page below still shows. */
+  .sk-banner img { aspect-ratio: 16 / 7; }
   .sk-carousel-controls { margin-top: 10px; }
   .sk-carousel-arrow { position: absolute; top: calc(50% - 28px); z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: color-mix(in srgb, var(--sk-bg) 92%, transparent); color: var(--sk-text); box-shadow: var(--sk-shadow-raised); cursor: pointer; transition: opacity 0.2s var(--sk-ease), transform 0.16s var(--sk-ease); }
   .sk-carousel-arrow:hover { transform: scale(1.06); }
