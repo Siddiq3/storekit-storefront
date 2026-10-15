@@ -5,14 +5,16 @@ import Link from 'next/link';
 import { safeBannerLink } from '@/lib/urls.js';
 import { ChevronLeftIcon, ChevronRightIcon } from './icons.jsx';
 
-/** Auto-advance between banners while keeping native swipe and manual controls. */
+/**
+ * Banners change on their own every few seconds, and hold still while a shopper is pointing at, swiping or
+ * focusing them, or has asked for reduced motion. Native swipe, dots and arrows still work.
+ */
 export function Banners({ banners = [] }) {
   const usable = banners.filter((b) => b.imageUrl);
   const track = useRef(null);
   const id = useId();
   const [active, setActive] = useState(0);
   const [atEnd, setAtEnd] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -24,17 +26,17 @@ export function Banners({ banners = [] }) {
   }, []);
 
   useEffect(() => {
-    if (usable.length < 2 || paused || hovered || focused || dragging) return;
+    if (usable.length < 2 || hovered || focused || dragging) return;
     const timer = window.setInterval(() => {
       const el = track.current;
       if (!el || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      // Desktop shows two slides at once, so wrap when the scroll track reaches its end.
+      // Wrap to the first banner after the last.
       if (el.scrollWidth <= el.clientWidth + 2) return;
       const end = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
       go(end ? 0 : Math.min(active + 1, usable.length - 1));
     }, 4000);
     return () => window.clearInterval(timer);
-  }, [active, usable.length, paused, hovered, focused, dragging, go]);
+  }, [active, usable.length, hovered, focused, dragging, go]);
 
   if (usable.length === 0) return null;
   return (
@@ -48,7 +50,7 @@ export function Banners({ banners = [] }) {
       <div className="sk-banners" id={id} ref={track} tabIndex={usable.length > 1 ? 0 : undefined} aria-label="Swipe to browse banners" onScroll={() => {
         const el = track.current;
         if (!el) return;
-        // Two banners share the row on a wide screen, so a step is one slide's width plus the gap, not the track's.
+        // A step is one slide's width plus the gap between slides.
         const step = (el.children[0]?.getBoundingClientRect().width ?? el.clientWidth) + 12;
         setActive(Math.min(usable.length - 1, Math.round(el.scrollLeft / step)));
         setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 2);
@@ -65,7 +67,6 @@ export function Banners({ banners = [] }) {
         })}
       </div>
       {usable.length > 1 ? <div className="sk-carousel-controls">
-        <button type="button" className="sk-carousel-playback" aria-label={paused ? 'Play banner slideshow' : 'Pause banner slideshow'} aria-controls={id} onClick={() => setPaused((value) => !value)}>{paused ? 'Play' : 'Pause'}</button>
         <button type="button" aria-label="Previous banner" aria-controls={id} disabled={active === 0} className="sk-carousel-arrow" data-dir="prev" onClick={() => go(active - 1)}><ChevronLeftIcon /></button>
         <div className="sk-carousel-dots">{usable.map((_, index) => <button type="button" key={index} aria-label={`Show banner ${index + 1}`} aria-controls={id} aria-current={index === active ? 'true' : undefined} onClick={() => go(index)}><span /></button>)}</div>
         <button type="button" aria-label="Next banner" aria-controls={id} disabled={atEnd || active === usable.length - 1} className="sk-carousel-arrow" data-dir="next" onClick={() => go(active + 1)}><ChevronRightIcon /></button>
